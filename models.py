@@ -3,44 +3,76 @@ from tinydb import TinyDB, Query, where
 # TODO Updates Views
 
 class Player:
-    def __init__(self, player_index, last_name, first_name, date_of_birth, sex, ranking, points):
-        self.player_index = player_index
+    query = Query()
+
+    def __init__(self, email, last_name, first_name, date_of_birth, sex, ranking):
+        self.email = email
         self.last_name = last_name
         self.first_name = first_name
         self.date_of_birth = date_of_birth
         self.sex = sex
         self.ranking = ranking
-        self.points = points
 
-    def read_player(self):
+    def serialize_player(self):
         player_data = {
-            "player_index": self.player_index,
+            "email": self.email,
             "last_name": self.last_name,
             "first_name": self.first_name,
             "date_of_birth": self.date_of_birth,
             "sex": self.sex,
-            "ranking": self.ranking,
-            "points": self.points
+            "ranking": self.ranking
         }
         return player_data
 
-    def update_player(self, new_last_name, new_first_name, new_date_of_birth, new_sex, new_ranking, new_points):
-        self.player_index = self.player_index
-        self.last_name = new_last_name
-        self.first_name = new_first_name
-        self.date_of_birth = new_date_of_birth
-        self.sex = new_sex
-        self.ranking = new_ranking
-        self.points = new_points
+    @classmethod
+    def create_player(cls, email, last_name, first_name, date_of_birth, sex, ranking):
+        db_players = TinyDB('players.json')
+        player = cls(email, last_name, first_name, date_of_birth, sex, ranking)
+        db_players.insert(player.serialize_player())
 
-    @staticmethod
-    def delete_player(player):
-        del player
+    @classmethod
+    def read_one_player(cls, email):
+        db_players = TinyDB('players.json')
+        return db_players.search(Player.query.email == email)
 
-player1 = Player(1, 'Foster', 'Harris', '11/01/1992', 'Male', 1, 99)
+    @classmethod
+    def read_player_list(cls):
+        db_players = TinyDB('players.json')
+        players = []
+        for player in db_players.all():
+            players.append(player)
+        return players
 
-print(player1.read_player())
-player1.update_player('Taylor', 'Heather', '02/05/1991', 'Female', 8, 0)
-print(player1.read_player())
-Player.delete_player(player1)
-print(player1.read_player())
+    @classmethod
+    def update_player(cls, email, last_name, first_name, date_of_birth, sex, ranking, new_email):
+        db_players = TinyDB('players.json')
+        if last_name:
+            db_players.update({'last_name': last_name}, Player.query["email"] == email)
+        if first_name:
+            db_players.update({'first_name': first_name}, Player.query["email"] == email)
+        if date_of_birth:
+            db_players.update({'date_of_birth': date_of_birth}, Player.query["email"] == email)
+        if sex:
+            db_players.update({'sex': sex}, Player.query["email"] == email)
+        if ranking:
+            db_players.update({'ranking': ranking}, Player.query["email"] == email)
+        if new_email:
+            db_players.update({'email': new_email}, Player.query["email"] == email)
+
+    @classmethod
+    def update_ranking(cls, email, new_ranking):
+        db_players = TinyDB('players.json')
+        db_players.update({'ranking': new_ranking}, Player.query["email"] == email)
+
+    @classmethod
+    def get_player_emails(cls):
+        db_players = TinyDB('players.json')
+        player_emails = []
+        for player in db_players.all():
+            player_emails.append(player['email'])
+        return player_emails
+
+    @classmethod
+    def delete_player(cls, email):
+        db_players = TinyDB('players.json')
+        db_players.remove(where('email') == email)
