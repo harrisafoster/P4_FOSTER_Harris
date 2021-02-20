@@ -34,9 +34,7 @@ def get_new_player_data():
 def update_player_data():
     db_players = TinyDB('players.json')
     if len(db_players.all()) > 0:
-        player_email_addresses = []
-        for player in db_players.all():
-            player_email_addresses.append(player['email'])
+        player_email_addresses = Player.get_player_emails()
         views.show_players()
         while True:
             try:
@@ -112,9 +110,7 @@ def update_player_rankings():
 def remove_player():
     db_players = TinyDB('players.json')
     if len(db_players.all()) > 0:
-        player_email_addresses = []
-        for player in db_players.all():
-            player_email_addresses.append(player['email'])
+        player_email_addresses = Player.get_player_emails()
         views.show_players()
         while True:
             try:
