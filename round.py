@@ -65,4 +65,4 @@ class Round:
     def delete_round(cls, round_number, tournament):
         db_tournaments = TinyDB('tournaments.json')
         db_tournaments.remove(
-            where('tournament_name') == tournament.name and where('round_number' == (round_number - 1)))
+            where('tournament_name') == tournament.name and where('round_number') == round_number)
