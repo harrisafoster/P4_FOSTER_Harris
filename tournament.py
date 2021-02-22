@@ -4,24 +4,22 @@ import operator
 
 
 class Tournament:
-    query = Query()
-
-    def __init__(self, name_of_tournament, location, start_date, end_date, nb_rounds, round_descriptions,
-                 player_emails, player_instances, time_ctrl, description,
-                 done, round_instances, match_instances):
-        self.name_of_tournament = name_of_tournament
-        self.location = location
-        self.start_date = start_date
-        self.end_date = end_date
-        self.nb_rounds = nb_rounds
-        self.round_descriptions = round_descriptions
-        self.player_emails = player_emails
-        self.player_instances = player_instances
-        self.time_ctrl = time_ctrl
-        self.description = description
-        self.done = done
-        self.round_instances = round_instances
-        self.match_instances = match_instances
+    def __init__(self, json_file):
+        self.db_tournaments = json_file
+        self.query = Query()
+        self.name_of_tournament = ""
+        self.location = ""
+        self.start_date = ""
+        self.end_date = ""
+        self.nb_rounds = 0
+        self.round_descriptions = ""
+        self.player_emails = ""
+        self.player_instances = ""
+        self.time_ctrl = ""
+        self.description = ""
+        self.done = None
+        self.round_instances = ""
+        self.match_instances = ""
 
     def serialize_tournament(self):
         tournament_data = {
@@ -42,20 +40,21 @@ class Tournament:
         return tournament_data
 
     # TODO test
-    @classmethod
-    def create_tournament(cls, name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description):
-        db_tournaments = TinyDB('tournaments.json')
-        start_date = str(datetime.date.today())
-        end_date = None
-        round_descriptions = []
-        player_instances = []
-        done = None
-        round_instances = []
-        match_instances = []
-        tournament = Tournament(name_of_tournament, location, start_date, end_date, nb_rounds, round_descriptions,
-                                player_emails, player_instances, time_ctrl, description,
-                                done, round_instances, match_instances)
-        db_tournaments.insert(tournament.serialize_tournament())
+    def create_tournament(self, name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description):
+        self.name_of_tournament = name_of_tournament
+        self.location = location
+        self.start_date = str(datetime.date.today())
+        self.end_date = None
+        self.nb_rounds = nb_rounds
+        self.round_descriptions = []
+        self.player_emails = player_emails
+        self.player_instances = []
+        self.time_ctrl = time_ctrl
+        self.description = description
+        self.done = None
+        self.round_instances = []
+        self.match_instances = []
+        self.db_tournaments.insert(self.serialize_tournament())
         return name_of_tournament
 
     # TODO test
