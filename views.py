@@ -1,12 +1,9 @@
-from player import Player
 
 
-def show_players():
-    player_object = Player('players.json')
-    for player in player_object.read_player_list():
+def show_players(players):
+    for player in players:
         print(player)
 
 
-def show_one_player(email):
-    player_object = Player('players.json')
+def show_one_player(player_object, email):
     print(player_object.read_one_player(email))
