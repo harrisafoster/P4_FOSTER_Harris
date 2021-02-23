@@ -5,7 +5,7 @@ import operator
 
 class Tournament:
     def __init__(self, json_file):
-        self.db_tournaments = json_file
+        self.db_tournaments = TinyDB(json_file)
         self.query = Query()
         self.name_of_tournament = ""
         self.location = ""
@@ -39,7 +39,6 @@ class Tournament:
         }
         return tournament_data
 
-    # TODO test
     def create_tournament(self, name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description):
         self.name_of_tournament = name_of_tournament
         self.location = location
@@ -57,26 +56,20 @@ class Tournament:
         self.db_tournaments.insert(self.serialize_tournament())
         return name_of_tournament
 
-    # TODO test
-    @classmethod
-    def read_all_tournaments(cls):
-        db_tournaments = TinyDB('tournaments.json')
-        tournaments = []
-        for tournament in db_tournaments.all():
-            tournaments.append(tournament)
-        return tournaments
+    def get_tournament_names(self):
+        tournament_names = []
+        for tournament in self.db_tournaments.all():
+            tournament_names.append(tournament['name_of_tournament'])
+        return tournament_names
 
-    # TODO test
-    @classmethod
-    def read_one_tournament(cls, tournament_name):
-        db_tournaments = TinyDB('tournaments.json')
-        return db_tournaments.search(Tournament.query.tournament_name == tournament_name)
+    def read_all_tournaments(self):
+        return self.db_tournaments.all()
 
-    # TODO test
-    @classmethod
-    def delete_tournament(cls, tournament_name):
-        db_tournaments = TinyDB('tournaments.json')
-        db_tournaments.remove(where('tournament_name') == tournament_name)
+    def read_one_tournament(self, name_of_tournament):
+        return self.db_tournaments.search(self.query.name_of_tournament == name_of_tournament)
+
+    def delete_tournament(self, name_of_tournament):
+        self.db_tournaments.remove(where('name_of_tournament') == name_of_tournament)
 
     # TODO test
     def already_played(self, new_match):
@@ -153,4 +146,4 @@ class Tournament:
             self.round_descriptions = [round_descriptions, ]
 
     # TODO finish & divide this function
-    def initialize_next_round(self, round_number):
+    '''def initialize_next_round(self, round_number):'''
