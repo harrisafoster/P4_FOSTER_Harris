@@ -3,10 +3,31 @@ from tournament import Tournament
 import views
 import datetime
 import operator
+import itertools
 
 
 def generate_tournament_object():
     tournament_object = Tournament('tournaments.json')
+    return tournament_object
+
+
+def access_tournament_object(name_of_tournament):
+    tournament_object = generate_tournament_object()
+    tournament_instance = tournament_object.db_tournaments.search(tournament_object.query['name_of_tournament'] ==
+                                                                  name_of_tournament)
+    tournament_object.name_of_tournament = tournament_instance[0]['name_of_tournament']
+    tournament_object.location = tournament_instance[0]['location']
+    tournament_object.start_date = tournament_instance[0]['start_date']
+    tournament_object.end_date = tournament_instance[0]['end_date']
+    tournament_object.nb_rounds = tournament_instance[0]['nb_rounds']
+    tournament_object.round_descriptions = tournament_instance[0]['round_descriptions']
+    tournament_object.player_emails = tournament_instance[0]['player_emails']
+    tournament_object.player_instances = tournament_instance[0]['player_instances']
+    tournament_object.time_ctrl = tournament_instance[0]['time_ctrl']
+    tournament_object.description = tournament_instance[0]['description']
+    tournament_object.done = tournament_instance[0]['done']
+    tournament_object.round_instances = tournament_instance[0]['round_instances']
+    tournament_object.match_instances = tournament_instance[0]['match_instances']
     return tournament_object
 
 
@@ -218,3 +239,54 @@ def get_new_tournament_data():
     description = input('Enter the description of the tournament: ')
     tournament_object.create_tournament(name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description)
     populate_player_instances(name_of_tournament)
+
+# TODO brouillon ci-dessous, à retravailler
+
+def get_local_player_index_numbers(tournament_object):
+    local_player_index_numbers = []
+    for player in tournament_object.player_instances:
+        local_player_index_numbers.append(player['local_player_index'])
+    return local_player_index_numbers
+
+tournament_object = access_tournament_object("Name 23/02/21")
+
+def generate_round_1_matches(tournament_object):
+    nb_players = len(tournament_object.player_instances)
+    local_player_index_numbers = get_local_player_index_numbers(tournament_object)
+    top_half = local_player_index_numbers[0:int(nb_players / 2)]
+    bottom_half = local_player_index_numbers[int(nb_players / 2):nb_players]
+    round_matches = []
+    for local_player_index in top_half:
+        round_matches.append((local_player_index, bottom_half[local_player_index-1]))
+    tournament_object.round_descriptions = [round_matches, ]
+
+
+generate_round_1_matches(tournament_object)
+
+def point_counter(tournament_object, round_number):
+    current_round_matches = tournament_object.round_descriptions[round_number-1]
+    for match in current_round_matches:
+        winner = int(input(f"Winner? {match[0]} or {match[1]}: "))
+        if winner == match[0]:
+            for player_instance in tournament_object.player_instances:
+                if player_instance['local_player_index'] == match[0]:
+                    player_instance['points'] += 1
+        if winner == match[1]:
+            for player_instance in tournament_object.player_instances:
+                if player_instance['local_player_index'] == match[1]:
+                    player_instance['points'] += 1
+
+point_counter(tournament_object, 1)
+
+def next_round_matches(tournament_object):
+    matches = []
+    tournament_object.player_instances.sort(key=operator.itemgetter('points'), reverse=True)
+    local_player_index_numbers = get_local_player_index_numbers(tournament_object)
+    test_list = list(itertools.chain.from_iterable(tournament_object.round_descriptions))
+    print(test_list)
+    for round in tournament_object.round_descriptions:
+        for match in round:
+            for player in match:
+                print(player)
+
+next_round_matches(tournament_object)
