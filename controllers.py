@@ -1,5 +1,12 @@
 from player import Player
+from tournament import Tournament
 import views
+import datetime
+
+
+def generate_tournament_object():
+    tournament_object = Tournament('tournaments.json')
+    return tournament_object
 
 
 def generate_player_object():
@@ -130,3 +137,63 @@ def remove_player():
                 break
     else:
         print("There aren't any players saved in the database.")
+
+
+def get_new_tournament_data():
+    tournament_object = generate_tournament_object()
+    name_of_tournament = str(input('Enter name of tournament: ')) + ' ' + str(datetime.date.today().strftime("%d/%m/%y"))
+    location = input('Enter location of tournament: ')
+    while True:
+        try:
+            nb_rounds = int(input('Enter number of rounds (default set to 4): '))
+        except ValueError:
+            print('Set to default round count (4)')
+            nb_rounds = 4
+            break
+        else:
+            break
+    while True:
+        try:
+            nb_players = int(input('Enter how many players are playing in this tournament: '))
+        except ValueError:
+            print('Please enter only whole number values. ')
+            continue
+        else:
+            break
+    views.show_players(generate_player_object().read_player_list())
+    player_emails = []
+    counter = 1
+    while len(player_emails) < nb_players:
+        while True:
+            try:
+                email = input("Enter player " + str(counter) + "'s " + "email address: ")
+                assert '@' in email
+            except AssertionError:
+                print('Please enter a valid email address.')
+                continue
+            if email in player_emails:
+                print('You have already added this user to the tournament.')
+                continue
+            if email not in generate_player_object().get_player_emails():
+                add_new_player = input('This email address matches no saved users, add a new user with this email? ('
+                                       'y/n): ')
+                if add_new_player == 'y':
+                    get_new_player_data()
+                    player_emails.append(generate_player_object().read_one_player(email)[0]['email'])
+                    counter += 1
+                continue
+            else:
+                counter += 1
+                player_emails.append(email)
+                break
+    while True:
+        try:
+            time_ctrl = input("Type of time control (Bullet, Blitz, ou Coup Rapide): ")
+            assert time_ctrl in ["Bullet", "Blitz", "Coup Rapide"]
+        except AssertionError:
+            print("Please select one of the available options.")
+            continue
+        else:
+            break
+    description = input('Enter the description of the tournament: ')
+    tournament_object.create_tournament(name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description)
