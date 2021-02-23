@@ -2,6 +2,7 @@ from player import Player
 from tournament import Tournament
 import views
 import datetime
+import operator
 
 
 def generate_tournament_object():
@@ -139,9 +140,28 @@ def remove_player():
         print("There aren't any players saved in the database.")
 
 
+def populate_player_instances(name_of_tournament):
+    tournament = generate_tournament_object().read_one_tournament(name_of_tournament)[0]
+    player_instances = []
+    for email in tournament['player_emails']:
+        player_instances.append(generate_player_object().read_one_player(email)[0])
+    player_instances.sort(key=operator.itemgetter('ranking'))
+    filtered_player_instances = []
+    local_player_index = 0
+    for player_instance in player_instances:
+        local_player_index += 1
+        filtered_player = {'local_player_index': local_player_index,
+                           'email': player_instance['email'],
+                           'first_name': player_instance['first_name'],
+                           'points': 0}
+        filtered_player_instances.append(filtered_player)
+    generate_tournament_object().update_player_instances(filtered_player_instances, name_of_tournament)
+
+
 def get_new_tournament_data():
     tournament_object = generate_tournament_object()
-    name_of_tournament = str(input('Enter name of tournament: ')) + ' ' + str(datetime.date.today().strftime("%d/%m/%y"))
+    name_of_tournament = str(input('Enter name of tournament: ')) + ' ' + str(
+        datetime.date.today().strftime("%d/%m/%y"))
     location = input('Enter location of tournament: ')
     while True:
         try:
@@ -197,3 +217,4 @@ def get_new_tournament_data():
             break
     description = input('Enter the description of the tournament: ')
     tournament_object.create_tournament(name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description)
+    populate_player_instances(name_of_tournament)
