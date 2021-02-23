@@ -1,5 +1,4 @@
 from player import Player
-from tinydb import TinyDB, Query, where
 import views
 
 
@@ -28,13 +27,14 @@ def get_new_player_data():
             continue
         else:
             break
-    Player.create_player(email, last_name, first_name, date_of_birth, sex, ranking)
+    player = Player('players.json')
+    player.create_player(email, last_name, first_name, date_of_birth, sex, ranking)
 
 
 def update_player_data():
-    db_players = TinyDB('players.json')
-    if len(db_players.all()) > 0:
-        player_email_addresses = Player.get_player_emails()
+    player = Player('players.json')
+    if len(player.db_players.all()) > 0:
+        player_email_addresses = player.get_player_emails()
         views.show_players()
         while True:
             try:
@@ -83,18 +83,17 @@ def update_player_data():
             new_email = input("Enter the player's modified email address: ")
         else:
             new_email = None
-        Player.update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
+        player.update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
     else:
         print("There aren't any players saved in the database.")
 
 
 def update_player_rankings():
-    db_players = TinyDB('players.json')
-    all_players = db_players.all()
+    player_object = Player('players.json')
     views.show_players()
     confirm = input("Would you like to update all player rankings? (y/n) ")
     if confirm == 'y':
-        for player in all_players:
+        for player in player_object.db_players.all():
             views.show_one_player(player['email'])
             while True:
                 try:
@@ -103,14 +102,14 @@ def update_player_rankings():
                     print('Please enter only numerical values. ')
                     continue
                 else:
-                    Player.update_ranking(player['email'], new_ranking)
+                    player_object.update_ranking(player['email'], new_ranking)
                     break
 
 
 def remove_player():
-    db_players = TinyDB('players.json')
-    if len(db_players.all()) > 0:
-        player_email_addresses = Player.get_player_emails()
+    player_object = Player('players.json')
+    if len(player_object.db_players.all()) > 0:
+        player_email_addresses = player_object.get_player_emails()
         views.show_players()
         while True:
             try:
@@ -122,7 +121,7 @@ def remove_player():
                 views.show_players()
                 continue
             else:
-                Player.delete_player(email)
+                player_object.delete_player(email)
                 break
     else:
         print("There aren't any players saved in the database.")
