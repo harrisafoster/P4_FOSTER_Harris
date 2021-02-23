@@ -2,7 +2,13 @@ from player import Player
 import views
 
 
+def generate_player_object():
+    player_object = Player('players.json')
+    return player_object
+
+
 def get_new_player_data():
+    player_object = generate_player_object()
     while True:
         try:
             email = input("Enter player's email address: ")
@@ -10,7 +16,7 @@ def get_new_player_data():
         except AssertionError:
             print('Please enter a valid email address.')
             continue
-        if email in Player.get_player_emails():
+        if email in player_object.get_player_emails():
             print('This email is already assigned to another user.')
             continue
         else:
@@ -27,15 +33,14 @@ def get_new_player_data():
             continue
         else:
             break
-    player = Player('players.json')
-    player.create_player(email, last_name, first_name, date_of_birth, sex, ranking)
+    player_object.create_player(email, last_name, first_name, date_of_birth, sex, ranking)
 
 
 def update_player_data():
-    player = Player('players.json')
-    if len(player.db_players.all()) > 0:
-        player_email_addresses = player.get_player_emails()
-        views.show_players()
+    player_object = generate_player_object()
+    if len(player_object.db_players.all()) > 0:
+        player_email_addresses = player_object.get_player_emails()
+        views.show_players(player_object.read_player_list())
         while True:
             try:
                 email = input("Which player would you like to edit? "
@@ -43,10 +48,10 @@ def update_player_data():
                 assert email in player_email_addresses
             except AssertionError:
                 print('Sorry, you need to enter an email address that is currently present in the database.')
-                views.show_players()
+                views.show_players(player_object.read_player_list())
                 continue
             else:
-                views.show_one_player(email)
+                views.show_one_player(player_object, email)
                 break
 
         fields_to_edit = input("Which fields would you like to edit?"
@@ -83,18 +88,18 @@ def update_player_data():
             new_email = input("Enter the player's modified email address: ")
         else:
             new_email = None
-        player.update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
+        player_object.update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
     else:
         print("There aren't any players saved in the database.")
 
 
 def update_player_rankings():
-    player_object = Player('players.json')
-    views.show_players()
+    player_object = generate_player_object()
+    views.show_players(player_object.read_player_list())
     confirm = input("Would you like to update all player rankings? (y/n) ")
     if confirm == 'y':
         for player in player_object.db_players.all():
-            views.show_one_player(player['email'])
+            views.show_one_player(player_object, player['email'])
             while True:
                 try:
                     new_ranking = int(input("Enter the player's new ranking: "))
@@ -107,10 +112,10 @@ def update_player_rankings():
 
 
 def remove_player():
-    player_object = Player('players.json')
+    player_object = generate_player_object()
     if len(player_object.db_players.all()) > 0:
         player_email_addresses = player_object.get_player_emails()
-        views.show_players()
+        views.show_players(player_object.read_player_list())
         while True:
             try:
                 email = input("Which player would you like to delete? "
@@ -118,7 +123,7 @@ def remove_player():
                 assert email in player_email_addresses
             except AssertionError:
                 print('Sorry, you need to enter an email address that is currently present in the database.')
-                views.show_players()
+                views.show_players(player_object.read_player_list())
                 continue
             else:
                 player_object.delete_player(email)
