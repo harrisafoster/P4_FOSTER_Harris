@@ -1,5 +1,6 @@
 from player import Player
 from tournament import Tournament
+from round import Round
 import views
 import datetime
 
@@ -12,6 +13,11 @@ def generate_tournament_object():
 def generate_player_object():
     player_object = Player('players.json')
     return player_object
+
+
+def generate_round_object():
+    round_object = Round('tournaments.json')
+    return round_object
 
 
 def get_new_player_data():
@@ -249,10 +255,44 @@ def point_counter(tournament_object, round_number):
 
     tournament_object.update_player_instances(tournament_object.player_instances)
 
+def start_round(round_number, current_tournament):
+    while True:
+        try:
+            start_of_round = str(input('Press y to start the round: '))
+            assert start_of_round == 'y'
+        except AssertionError:
+            print('Please press the indicated key to start the round.')
+        else:
+            current_round = generate_round_object().create_round(round_number, current_tournament)
+            return current_round
+
+def end_round(round):
+    while True:
+        try:
+            end_of_round = str(input('Press y to end the round: '))
+            assert end_of_round == 'y'
+        except AssertionError:
+            print('Please press the indicated key to end the round.')
+        else:
+            while True:
+                duration = input('How long did the round last? (number of hours only in decimal form, ex. 1.5)')
+                try:
+                    float(duration)
+                except ValueError:
+                    print('Please enter a valid number.')
+                    continue
+                else:
+                    duration = float(duration)
+                    break
+            end_of_round = round.start_of_round + datetime.timedelta(hours=duration)
+            round.end_of_round = end_of_round.strftime("%H:%M:%S")
+            round.start_of_round = round.start_of_round.strftime("%H:%M:%S")
+            print('Current round ended: ' + round.end_of_round)
+            break
 # TODO Testes ci-dessous, algo fonctionne
 
 current_tournament = generate_tournament_object().access_tournament_object("Name 23/02/21")
-current_tournament.generate_round_1_matches()
+'''current_tournament.generate_round_1_matches()
 point_counter(current_tournament, 1)
 print('End of round 1. ')
 current_tournament.swiss_method_pairing()
@@ -266,4 +306,11 @@ point_counter(current_tournament, 4)
 print('End of round 4. ')
 
 print(current_tournament.player_instances)
-print(current_tournament.round_descriptions)
+print(current_tournament.round_descriptions)'''
+
+current_round = start_round(1, current_tournament)
+end_round(current_round)
+
+print(current_round.start_of_round)
+print(current_round.end_of_round)
+print(current_round.matches)
