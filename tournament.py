@@ -74,39 +74,6 @@ class Tournament:
         self.db_tournaments.update({'player_instances': player_instances},
                                    self.query["name_of_tournament"] == name_of_tournament)
 
-    # TODO finish
-    '''def round_1_matches(self):
-        nb_players = len(self.player_instances)
-            self.round_descriptions = [round_descriptions, ]'''
-
-    # TODO test
-    def already_played(self, new_match):
-        if new_match in [match for round in self.round_descriptions for match in round]:
-            return True
-        else:
-            return False
-
-    # TODO test
-    def swiss_method(self):
-        matches = []
-        for player_instance in self.player_instances:
-            new_player_a = {"local_player_id": player_instance["local_player_id"],
-                            "ranking": player_instance["ranking"],
-                            "first_name": player_instance["first_name"],
-                            "email": player_instance["email"]}
-            if new_player_a not in [match for round in matches for match in round]:
-                for other_player_instance in self.player_instances:
-                    new_player_b = {"local_player_id": other_player_instance["local_player_id"],
-                                    "ranking": other_player_instance["ranking"],
-                                    "first_name": other_player_instance["first_name"],
-                                    "email": other_player_instance["email"]}
-                    if new_player_b != new_player_a and new_player_b not in [match for round in matches for match in
-                                                                             round]:
-                        if not self.already_played([new_player_a, 'vs.', new_player_b]) and not self.already_played(
-                                [new_player_b, 'vs.', new_player_a]):
-                            matches.append([new_player_a, 'vs.', new_player_b])
-                            break
-        return matches
-
-    # TODO finish & divide this function
-    '''def initialize_next_round(self, round_number):'''
+    def update_round_descriptions(self):
+        self.db_tournaments.update({'round_descriptions': self.round_descriptions},
+                                   self.query["name_of_tournament"] == self.name_of_tournament)
