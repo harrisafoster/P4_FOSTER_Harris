@@ -4,6 +4,7 @@ import views
 import datetime
 import operator
 import itertools
+from random import shuffle
 
 
 def generate_tournament_object():
@@ -240,7 +241,6 @@ def get_new_tournament_data():
     tournament_object.create_tournament(name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description)
     populate_player_instances(name_of_tournament)
 
-# TODO brouillon ci-dessous, à retravailler
 
 def get_local_player_index_numbers(tournament_object):
     local_player_index_numbers = []
@@ -248,45 +248,127 @@ def get_local_player_index_numbers(tournament_object):
         local_player_index_numbers.append(player['local_player_index'])
     return local_player_index_numbers
 
-tournament_object = access_tournament_object("Name 23/02/21")
+
+def point_counter(tournament_object, round_number):
+    current_round_matches = tournament_object.round_descriptions[round_number - 1]
+    for match in current_round_matches:
+        while True:
+            winner = input(f"Winner? Player {match[0]} or Player {match[1]}, or Draw: ")
+            try:
+                assert winner in [str(match[0]), str(match[1]), 'Draw', 'draw']
+            except AssertionError:
+                print('Please select one of the available options.')
+                continue
+            else:
+                break
+        while True:
+            try:
+                winner.capitalize()
+            except AttributeError:
+                break
+            else:
+                if winner.capitalize() == 'Draw':
+                    for player_instance in tournament_object.player_instances:
+                        if player_instance['local_player_index'] == match[0]:
+                            player_instance['points'] += 0.5
+                        if player_instance['local_player_index'] == match[1]:
+                            player_instance['points'] += 0.5
+                break
+        while True:
+            try:
+                int(winner)
+            except ValueError:
+                break
+            else:
+                if int(winner) == match[0]:
+                    for player_instance in tournament_object.player_instances:
+                        if player_instance['local_player_index'] == match[0]:
+                            player_instance['points'] += 1
+                if int(winner) == match[1]:
+                    for player_instance in tournament_object.player_instances:
+                        if player_instance['local_player_index'] == match[1]:
+                            player_instance['points'] += 1
+                break
+
+    tournament_object.update_player_instances(tournament_object.player_instances, tournament_object.name_of_tournament)
+
+
+def check_if_already_played(tournament_object, new_match):
+    if new_match in list(itertools.chain.from_iterable(tournament_object.round_descriptions)):
+        return True
+    else:
+        return False
+
+
+def sort_players_by_points_descending(tournament_object):
+    tournament_object.player_instances.sort(key=operator.itemgetter('points'), reverse=True)
+
+
+def sort_players_by_points_ascending(tournament_object):
+    tournament_object.player_instances.sort(key=operator.itemgetter('points'))
+
 
 def generate_round_1_matches(tournament_object):
     nb_players = len(tournament_object.player_instances)
     local_player_index_numbers = get_local_player_index_numbers(tournament_object)
+    local_player_index_numbers.sort()
     top_half = local_player_index_numbers[0:int(nb_players / 2)]
     bottom_half = local_player_index_numbers[int(nb_players / 2):nb_players]
     round_matches = []
     for local_player_index in top_half:
-        round_matches.append((local_player_index, bottom_half[local_player_index-1]))
+        round_matches.append((local_player_index, bottom_half[local_player_index - 1]))
     tournament_object.round_descriptions = [round_matches, ]
 
 
-generate_round_1_matches(tournament_object)
-
-def point_counter(tournament_object, round_number):
-    current_round_matches = tournament_object.round_descriptions[round_number-1]
-    for match in current_round_matches:
-        winner = int(input(f"Winner? {match[0]} or {match[1]}: "))
-        if winner == match[0]:
-            for player_instance in tournament_object.player_instances:
-                if player_instance['local_player_index'] == match[0]:
-                    player_instance['points'] += 1
-        if winner == match[1]:
-            for player_instance in tournament_object.player_instances:
-                if player_instance['local_player_index'] == match[1]:
-                    player_instance['points'] += 1
-
-point_counter(tournament_object, 1)
-
-def next_round_matches(tournament_object):
+def make_new_matches_for_swiss(tournament_object, local_player_index_numbers):
     matches = []
-    tournament_object.player_instances.sort(key=operator.itemgetter('points'), reverse=True)
-    local_player_index_numbers = get_local_player_index_numbers(tournament_object)
-    test_list = list(itertools.chain.from_iterable(tournament_object.round_descriptions))
-    print(test_list)
-    for round in tournament_object.round_descriptions:
-        for match in round:
-            for player in match:
-                print(player)
+    for player_a in local_player_index_numbers:
+        if player_a not in list(itertools.chain.from_iterable(matches)):
+            for player_b in local_player_index_numbers:
+                if player_b != player_a and player_b not in list(itertools.chain.from_iterable(matches)):
+                    if not check_if_already_played(tournament_object, (player_a, player_b)) \
+                            and not check_if_already_played(tournament_object, (player_b, player_a)):
+                        matches.append((player_a, player_b))
+                        break
+    return matches
 
-next_round_matches(tournament_object)
+
+def swiss_method_pairing(tournament_object):
+    sort_players_by_points_descending(tournament_object)
+    local_player_index_numbers = get_local_player_index_numbers(tournament_object)
+    new_matches = make_new_matches_for_swiss(tournament_object, local_player_index_numbers)
+    if len(new_matches) == len(local_player_index_numbers) / 2:
+        tournament_object.round_descriptions += [new_matches]
+        tournament_object.update_round_descriptions()
+    else:
+        sort_players_by_points_ascending(tournament_object)
+        local_player_index_numbers = get_local_player_index_numbers(tournament_object)
+        new_matches = make_new_matches_for_swiss(tournament_object, local_player_index_numbers)
+        if len(new_matches) == len(local_player_index_numbers) / 2:
+            tournament_object.round_descriptions += [new_matches]
+            tournament_object.update_round_descriptions()
+        else:
+            shuffle(get_local_player_index_numbers(tournament_object))
+            local_player_index_numbers = get_local_player_index_numbers(tournament_object)
+            new_matches = make_new_matches_for_swiss(tournament_object, local_player_index_numbers)
+            if len(new_matches) == len(local_player_index_numbers) / 2:
+                tournament_object.round_descriptions += [new_matches]
+                tournament_object.update_round_descriptions()
+
+
+tournament_object = access_tournament_object("Name 23/02/21")
+generate_round_1_matches(tournament_object)
+point_counter(tournament_object, 1)
+print('End of round 1. ')
+swiss_method_pairing(tournament_object)
+point_counter(tournament_object, 2)
+print('End of round 2. ')
+swiss_method_pairing(tournament_object)
+point_counter(tournament_object, 3)
+print('End of round 3. ')
+swiss_method_pairing(tournament_object)
+point_counter(tournament_object, 4)
+print('End of round 4. ')
+
+print(tournament_object.player_instances)
+print(tournament_object.round_descriptions)
