@@ -10,7 +10,7 @@ class Player:
         self.first_name = ""
         self.date_of_birth = ""
         self.sex = ""
-        self.ranking = ""
+        self.ranking = 0
 
     def serialize_player(self):
         player_data = {
