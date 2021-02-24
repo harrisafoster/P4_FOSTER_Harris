@@ -2,33 +2,10 @@ from player import Player
 from tournament import Tournament
 import views
 import datetime
-import operator
-import itertools
-from random import shuffle
 
 
 def generate_tournament_object():
     tournament_object = Tournament('tournaments.json')
-    return tournament_object
-
-
-def access_tournament_object(name_of_tournament):
-    tournament_object = generate_tournament_object()
-    tournament_instance = tournament_object.db_tournaments.search(tournament_object.query['name_of_tournament'] ==
-                                                                  name_of_tournament)
-    tournament_object.name_of_tournament = tournament_instance[0]['name_of_tournament']
-    tournament_object.location = tournament_instance[0]['location']
-    tournament_object.start_date = tournament_instance[0]['start_date']
-    tournament_object.end_date = tournament_instance[0]['end_date']
-    tournament_object.nb_rounds = tournament_instance[0]['nb_rounds']
-    tournament_object.round_descriptions = tournament_instance[0]['round_descriptions']
-    tournament_object.player_emails = tournament_instance[0]['player_emails']
-    tournament_object.player_instances = tournament_instance[0]['player_instances']
-    tournament_object.time_ctrl = tournament_instance[0]['time_ctrl']
-    tournament_object.description = tournament_instance[0]['description']
-    tournament_object.done = tournament_instance[0]['done']
-    tournament_object.round_instances = tournament_instance[0]['round_instances']
-    tournament_object.match_instances = tournament_instance[0]['match_instances']
     return tournament_object
 
 
@@ -40,8 +17,8 @@ def generate_player_object():
 def get_new_player_data():
     player_object = generate_player_object()
     while True:
+        email = input("Enter player's email address: ")
         try:
-            email = input("Enter player's email address: ")
             assert '@' in email
         except AssertionError:
             print('Please enter a valid email address.')
@@ -56,12 +33,14 @@ def get_new_player_data():
     date_of_birth = input("Enter date of birth (format dd/mm/yyyy): ")
     sex = input("Enter sex of player: ")
     while True:
+        ranking = input("Enter ranking of participant: ")
         try:
-            ranking = int(input("Enter ranking of participant: "))
+            int(ranking)
         except ValueError:
             print('Please enter only numerical values. ')
             continue
         else:
+            ranking = int(ranking)
             break
     player_object.create_player(email, last_name, first_name, date_of_birth, sex, ranking)
 
@@ -72,9 +51,9 @@ def update_player_data():
         player_email_addresses = player_object.get_player_emails()
         views.show_players(player_object.read_player_list())
         while True:
+            email = input("Which player would you like to edit? "
+                          "(enter the player's email address to access the correct player instance.) ")
             try:
-                email = input("Which player would you like to edit? "
-                              "(enter the player's email address to access the correct player instance.) ")
                 assert email in player_email_addresses
             except AssertionError:
                 print('Sorry, you need to enter an email address that is currently present in the database.')
@@ -162,24 +141,6 @@ def remove_player():
         print("There aren't any players saved in the database.")
 
 
-def populate_player_instances(name_of_tournament):
-    tournament = generate_tournament_object().read_one_tournament(name_of_tournament)[0]
-    player_instances = []
-    for email in tournament['player_emails']:
-        player_instances.append(generate_player_object().read_one_player(email)[0])
-    player_instances.sort(key=operator.itemgetter('ranking'))
-    filtered_player_instances = []
-    local_player_index = 0
-    for player_instance in player_instances:
-        local_player_index += 1
-        filtered_player = {'local_player_index': local_player_index,
-                           'email': player_instance['email'],
-                           'first_name': player_instance['first_name'],
-                           'points': 0}
-        filtered_player_instances.append(filtered_player)
-    generate_tournament_object().update_player_instances(filtered_player_instances, name_of_tournament)
-
-
 def get_new_tournament_data():
     tournament_object = generate_tournament_object()
     name_of_tournament = str(input('Enter name of tournament: ')) + ' ' + str(
@@ -195,12 +156,14 @@ def get_new_tournament_data():
         else:
             break
     while True:
+        nb_players = input('Enter how many players are playing in this tournament: ')
         try:
-            nb_players = int(input('Enter how many players are playing in this tournament: '))
+            int(nb_players)
         except ValueError:
             print('Please enter only whole number values. ')
             continue
         else:
+            nb_players = int(nb_players)
             break
     views.show_players(generate_player_object().read_player_list())
     player_emails = []
@@ -229,8 +192,8 @@ def get_new_tournament_data():
                 player_emails.append(email)
                 break
     while True:
+        time_ctrl = input("Type of time control (Bullet, Blitz, ou Coup Rapide): ")
         try:
-            time_ctrl = input("Type of time control (Bullet, Blitz, ou Coup Rapide): ")
             assert time_ctrl in ["Bullet", "Blitz", "Coup Rapide"]
         except AssertionError:
             print("Please select one of the available options.")
@@ -239,14 +202,8 @@ def get_new_tournament_data():
             break
     description = input('Enter the description of the tournament: ')
     tournament_object.create_tournament(name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description)
-    populate_player_instances(name_of_tournament)
-
-
-def get_local_player_index_numbers(tournament_object):
-    local_player_index_numbers = []
-    for player in tournament_object.player_instances:
-        local_player_index_numbers.append(player['local_player_index'])
-    return local_player_index_numbers
+    current_tournament = generate_tournament_object().access_tournament_object(name_of_tournament)
+    current_tournament.populate_player_instances()
 
 
 def point_counter(tournament_object, round_number):
@@ -290,85 +247,23 @@ def point_counter(tournament_object, round_number):
                             player_instance['points'] += 1
                 break
 
-    tournament_object.update_player_instances(tournament_object.player_instances, tournament_object.name_of_tournament)
+    tournament_object.update_player_instances(tournament_object.player_instances)
 
+# TODO Testes ci-dessous, algo fonctionne
 
-def check_if_already_played(tournament_object, new_match):
-    if new_match in list(itertools.chain.from_iterable(tournament_object.round_descriptions)):
-        return True
-    else:
-        return False
-
-
-def sort_players_by_points_descending(tournament_object):
-    tournament_object.player_instances.sort(key=operator.itemgetter('points'), reverse=True)
-
-
-def sort_players_by_points_ascending(tournament_object):
-    tournament_object.player_instances.sort(key=operator.itemgetter('points'))
-
-
-def generate_round_1_matches(tournament_object):
-    nb_players = len(tournament_object.player_instances)
-    local_player_index_numbers = get_local_player_index_numbers(tournament_object)
-    local_player_index_numbers.sort()
-    top_half = local_player_index_numbers[0:int(nb_players / 2)]
-    bottom_half = local_player_index_numbers[int(nb_players / 2):nb_players]
-    round_matches = []
-    for local_player_index in top_half:
-        round_matches.append((local_player_index, bottom_half[local_player_index - 1]))
-    tournament_object.round_descriptions = [round_matches, ]
-
-
-def make_new_matches_for_swiss(tournament_object, local_player_index_numbers):
-    matches = []
-    for player_a in local_player_index_numbers:
-        if player_a not in list(itertools.chain.from_iterable(matches)):
-            for player_b in local_player_index_numbers:
-                if player_b != player_a and player_b not in list(itertools.chain.from_iterable(matches)):
-                    if not check_if_already_played(tournament_object, (player_a, player_b)) \
-                            and not check_if_already_played(tournament_object, (player_b, player_a)):
-                        matches.append((player_a, player_b))
-                        break
-    return matches
-
-
-def swiss_method_pairing(tournament_object):
-    sort_players_by_points_descending(tournament_object)
-    local_player_index_numbers = get_local_player_index_numbers(tournament_object)
-    new_matches = make_new_matches_for_swiss(tournament_object, local_player_index_numbers)
-    if len(new_matches) == len(local_player_index_numbers) / 2:
-        tournament_object.round_descriptions += [new_matches]
-        tournament_object.update_round_descriptions()
-    else:
-        sort_players_by_points_ascending(tournament_object)
-        local_player_index_numbers = get_local_player_index_numbers(tournament_object)
-        new_matches = make_new_matches_for_swiss(tournament_object, local_player_index_numbers)
-        if len(new_matches) == len(local_player_index_numbers) / 2:
-            tournament_object.round_descriptions += [new_matches]
-            tournament_object.update_round_descriptions()
-        else:
-            shuffle(get_local_player_index_numbers(tournament_object))
-            local_player_index_numbers = get_local_player_index_numbers(tournament_object)
-            new_matches = make_new_matches_for_swiss(tournament_object, local_player_index_numbers)
-            if len(new_matches) == len(local_player_index_numbers) / 2:
-                tournament_object.round_descriptions += [new_matches]
-                tournament_object.update_round_descriptions()
-
-
-tournament_object = access_tournament_object("Name 23/02/21")
-generate_round_1_matches(tournament_object)
-point_counter(tournament_object, 1)
+current_tournament = generate_tournament_object().access_tournament_object("Name 23/02/21")
+current_tournament.generate_round_1_matches()
+point_counter(current_tournament, 1)
 print('End of round 1. ')
-swiss_method_pairing(tournament_object)
-point_counter(tournament_object, 2)
+current_tournament.swiss_method_pairing()
+point_counter(current_tournament, 2)
 print('End of round 2. ')
-swiss_method_pairing(tournament_object)
-point_counter(tournament_object, 3)
+current_tournament.swiss_method_pairing()
+point_counter(current_tournament, 3)
 print('End of round 3. ')
-swiss_method_pairing(tournament_object)
-point_counter(tournament_object, 4)
+current_tournament.swiss_method_pairing()
+point_counter(current_tournament, 4)
 print('End of round 4. ')
 
-print(tournament_object.player_instances)
-print(tournament_object.round_descriptions)
+print(current_tournament.player_instances)
+print(current_tournament.round_descriptions)
