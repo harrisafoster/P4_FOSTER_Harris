@@ -6,28 +6,7 @@ import views
 import datetime
 
 
-def generate_tournament_object():
-    tournament_object = Tournament('tournaments.json')
-    return tournament_object
-
-
-def generate_player_object():
-    player_object = Player('players.json')
-    return player_object
-
-
-def generate_round_object():
-    round_object = Round('tournaments.json')
-    return round_object
-
-
-def generate_match_object():
-    match_object = Match('tournaments.json')
-    return match_object
-
-
 def get_new_player_data():
-    player_object = generate_player_object()
     while True:
         email = input("Enter player's email address: ")
         try:
@@ -35,7 +14,7 @@ def get_new_player_data():
         except AssertionError:
             print('Please enter a valid email address.')
             continue
-        if email in player_object.get_player_emails():
+        if email in Player('players.json').get_player_emails():
             print('This email is already assigned to another user.')
             continue
         else:
@@ -54,14 +33,13 @@ def get_new_player_data():
         else:
             ranking = int(ranking)
             break
-    player_object.create_player(email, last_name, first_name, date_of_birth, sex, ranking)
+    Player('players.json').create_player(email, last_name, first_name, date_of_birth, sex, ranking)
 
 
 def update_player_data():
-    player_object = generate_player_object()
-    if len(player_object.db_players.all()) > 0:
-        player_email_addresses = player_object.get_player_emails()
-        views.show_players(player_object.read_player_list())
+    if len(Player('players.json').db_players.all()) > 0:
+        player_email_addresses = Player('players.json').get_player_emails()
+        views.show_players(Player('players.json').read_player_list())
         while True:
             email = input("Which player would you like to edit? "
                           "(enter the player's email address to access the correct player instance.) ")
@@ -69,12 +47,12 @@ def update_player_data():
                 assert email in player_email_addresses
             except AssertionError:
                 print('Sorry, you need to enter an email address that is currently present in the database.')
-                views.show_players(player_object.read_player_list())
+                views.show_players(Player('players.json').read_player_list())
                 continue
             else:
-                views.show_one_player(player_object, email)
+                views.show_one_player(Player('players.json'), email)
                 break
-
+        # TODO big prints in views
         fields_to_edit = input("Which fields would you like to edit?"
                                "\n (1) last_name "
                                "\n (2) first_name "
@@ -109,18 +87,17 @@ def update_player_data():
             new_email = input("Enter the player's modified email address: ")
         else:
             new_email = None
-        player_object.update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
+        Player('players.json').update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
     else:
         print("There aren't any players saved in the database.")
 
 
 def update_player_rankings():
-    player_object = generate_player_object()
-    views.show_players(player_object.read_player_list())
+    views.show_players(Player('players.json').read_player_list())
     confirm = input("Would you like to update all player rankings? (y/n) ")
     if confirm == 'y':
-        for player in player_object.db_players.all():
-            views.show_one_player(player_object, player['email'])
+        for player in Player('players.json').db_players.all():
+            views.show_one_player(Player('players.json'), player['email'])
             while True:
                 try:
                     new_ranking = int(input("Enter the player's new ranking: "))
@@ -128,15 +105,14 @@ def update_player_rankings():
                     print('Please enter only numerical values. ')
                     continue
                 else:
-                    player_object.update_ranking(player['email'], new_ranking)
+                    Player('players.json').update_ranking(player['email'], new_ranking)
                     break
 
 
 def remove_player():
-    player_object = generate_player_object()
-    if len(player_object.db_players.all()) > 0:
-        player_email_addresses = player_object.get_player_emails()
-        views.show_players(player_object.read_player_list())
+    if len(Player('players.json').db_players.all()) > 0:
+        player_email_addresses = Player('players.json').get_player_emails()
+        views.show_players(Player('players.json').read_player_list())
         while True:
             try:
                 email = input("Which player would you like to delete? "
@@ -144,17 +120,16 @@ def remove_player():
                 assert email in player_email_addresses
             except AssertionError:
                 print('Sorry, you need to enter an email address that is currently present in the database.')
-                views.show_players(player_object.read_player_list())
+                views.show_players(Player('players.json').read_player_list())
                 continue
             else:
-                player_object.delete_player(email)
+                Player('players.json').delete_player(email)
                 break
     else:
         print("There aren't any players saved in the database.")
 
 
 def get_new_tournament_data():
-    tournament_object = generate_tournament_object()
     name_of_tournament = str(input('Enter name of tournament: ')) + ' ' + str(
         datetime.date.today().strftime("%d/%m/%y"))
     location = input('Enter location of tournament: ')
@@ -177,7 +152,7 @@ def get_new_tournament_data():
         else:
             nb_players = int(nb_players)
             break
-    views.show_players(generate_player_object().read_player_list())
+    views.show_players(Player('players.json').read_player_list())
     player_emails = []
     counter = 1
     while len(player_emails) < nb_players:
@@ -191,12 +166,12 @@ def get_new_tournament_data():
             if email in player_emails:
                 print('You have already added this user to the tournament.')
                 continue
-            if email not in generate_player_object().get_player_emails():
+            if email not in Player('players.json').get_player_emails():
                 add_new_player = input('This email address matches no saved users, add a new user with this email? ('
                                        'y/n): ')
                 if add_new_player == 'y':
                     get_new_player_data()
-                    player_emails.append(generate_player_object().read_one_player(email)[0]['email'])
+                    player_emails.append(Player('players.json').read_one_player(email)[0]['email'])
                     counter += 1
                 continue
             else:
@@ -213,9 +188,10 @@ def get_new_tournament_data():
         else:
             break
     description = input('Enter the description of the tournament: ')
-    tournament_object.create_tournament(name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description)
-    current_tournament = generate_tournament_object().access_tournament_object(name_of_tournament)
+    Tournament('tournaments.json').create_tournament(name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description)
+    current_tournament = Tournament('tournaments.json').access_tournament_object(name_of_tournament)
     current_tournament.populate_player_instances()
+    return current_tournament.name_of_tournament
 
 
 def start_round(current_tournament, round_number):
@@ -226,7 +202,7 @@ def start_round(current_tournament, round_number):
         except AssertionError:
             print('Please press the indicated key to start the round.')
         else:
-            current_round = generate_round_object().create_round(round_number, current_tournament)
+            current_round = Round('tournaments.json').create_round(round_number, current_tournament)
             return current_round
 
 
@@ -327,16 +303,15 @@ def point_counter(current_tournament, round_number):
                             player_instance['points'] += 1
                 break
         match_number += 1
-        current_match = generate_match_object().create_match(round_number, match_number, winner, current_round)
-        end_match(current_round, current_match)
+        current_match = Match('tournaments.json').create_match(round_number, match_number, winner, current_round)
+        end_match(current_tournament, current_round, current_match)
     end_round(current_tournament, current_round)
     current_tournament.update_player_instances(current_tournament.player_instances)
 
 
 # TODO Testes ci-dessous, algo fonctionne
 
-'''current_tournament = generate_tournament_object().access_tournament_object("Name 23/02/21")
-print(current_tournament.delete_match(1, 3))
+'''current_tournament = Tournament('tournaments.json').access_tournament_object(get_new_tournament_data())
 
 current_tournament.generate_round_1_matches()
 point_counter(current_tournament, 1)
