@@ -99,6 +99,14 @@ class Tournament:
         self.db_tournaments.update({'round_descriptions': self.round_descriptions},
                                    self.query["name_of_tournament"] == self.name_of_tournament)
 
+    def update_round_instances(self):
+        self.db_tournaments.update({'round_instances': self.round_instances},
+                                   self.query["name_of_tournament"] == self.name_of_tournament)
+
+    def update_match_instances(self):
+        self.db_tournaments.update({'match_instances': self.match_instances},
+                                   self.query["name_of_tournament"] == self.name_of_tournament)
+
     def get_local_player_index_numbers(self):
         local_player_index_numbers = []
         for player in self.player_instances:
@@ -112,9 +120,11 @@ class Tournament:
             return False
 
     def sort_players_by_points_descending(self):
+        self.player_instances.sort(key=operator.itemgetter('local_player_index'))
         self.player_instances.sort(key=operator.itemgetter('points'), reverse=True)
 
     def sort_players_by_points_ascending(self):
+        self.player_instances.sort(key=operator.itemgetter('local_player_index'))
         self.player_instances.sort(key=operator.itemgetter('points'))
 
     def generate_round_1_matches(self):
@@ -179,3 +189,24 @@ class Tournament:
                                'points': 0}
             filtered_player_instances.append(filtered_player)
         self.update_player_instances(filtered_player_instances)
+
+    def delete_round(self, round_number):
+        del self.round_descriptions[round_number-1]
+        del self.round_instances[round_number-1]
+        self.update_round_descriptions()
+        self.update_round_instances()
+        self.match_instances = list(filter(lambda i: i['round_number'] != round_number, self.match_instances))
+        self.update_match_instances()
+
+    def delete_match(self, round_number, match_number):
+        tournament_dict = self.db_tournaments.search(where('name_of_tournament') ==
+                                                     self.name_of_tournament)
+        match_instances = tournament_dict[0]['match_instances']
+        matches_per_round = len(self.round_descriptions[0])
+        del match_instances[((round_number-1) * matches_per_round) + (match_number-1)]
+        self.match_instances = match_instances
+        self.update_match_instances()
+        del self.round_descriptions[round_number-1][match_number-1]
+        self.update_round_descriptions()
+        del self.round_instances[round_number-1]['matches'][match_number - 1]
+        self.update_round_instances()
