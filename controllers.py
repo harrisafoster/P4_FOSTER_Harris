@@ -1,6 +1,7 @@
 from player import Player
 from tournament import Tournament
 from round import Round
+from match import Match
 import views
 import datetime
 
@@ -18,6 +19,11 @@ def generate_player_object():
 def generate_round_object():
     round_object = Round('tournaments.json')
     return round_object
+
+
+def generate_match_object():
+    match_object = Match('tournaments.json')
+    return match_object
 
 
 def get_new_player_data():
@@ -212,8 +218,76 @@ def get_new_tournament_data():
     current_tournament.populate_player_instances()
 
 
-def point_counter(tournament_object, round_number):
-    current_round_matches = tournament_object.round_descriptions[round_number - 1]
+def start_round(current_tournament, round_number):
+    while True:
+        try:
+            start_of_round = str(input('Press y to start the round: '))
+            assert start_of_round == 'y'
+        except AssertionError:
+            print('Please press the indicated key to start the round.')
+        else:
+            current_round = generate_round_object().create_round(round_number, current_tournament)
+            return current_round
+
+
+def end_round(current_tournament, current_round):
+    while True:
+        try:
+            end_current_round = str(input('Press y to end the round: '))
+            assert end_current_round == 'y'
+        except AssertionError:
+            print('Please press the indicated key to end the round.')
+        else:
+            while True:
+                duration = input('How long did the round last? (number of hours only in decimal form, ex. 1.5)')
+                try:
+                    float(duration)
+                except ValueError:
+                    print('Please enter a valid number.')
+                    continue
+                else:
+                    duration = float(duration)
+                    break
+            end_of_round = current_round.start_of_round + datetime.timedelta(hours=duration)
+            current_round.end_of_round = end_of_round.strftime("%H:%M:%S")
+            current_round.start_of_round = current_round.start_of_round.strftime("%H:%M:%S")
+            current_tournament.round_instances += [current_round.serialize_round()]
+            current_tournament.update_round_instances()
+            print('Current round ended: ' + current_round.end_of_round)
+            break
+
+
+def end_match(current_tournament, current_round, current_match):
+    while True:
+        try:
+            end_current_match = str(input('Press y to enter the match duration: '))
+            assert end_current_match == 'y'
+        except AssertionError:
+            print('Please press the indicated key to enter the match duration. ')
+        else:
+            while True:
+                duration = input('How long did the match last? (number of hours only in decimal form, ex. 1.5)')
+                try:
+                    float(duration)
+                except ValueError:
+                    print('Please enter a valid number.')
+                    continue
+                else:
+                    duration = float(duration)
+                    break
+            end_of_match = current_round.start_of_round + datetime.timedelta(hours=duration)
+            current_match.end_of_match = end_of_match.strftime("%H:%M:%S")
+            current_match.start_of_match = current_round.start_of_round.strftime("%H:%M:%S")
+            current_tournament.match_instances += [current_match.serialize_match()]
+            current_tournament.update_match_instances()
+            print('Current match ended: ' + current_match.end_of_match)
+            break
+
+
+def point_counter(current_tournament, round_number):
+    current_round = start_round(current_tournament, round_number)
+    current_round_matches = current_tournament.round_descriptions[round_number - 1]
+    match_number = 0
     for match in current_round_matches:
         while True:
             winner = input(f"Winner? Player {match[0]} or Player {match[1]}, or Draw: ")
@@ -231,7 +305,7 @@ def point_counter(tournament_object, round_number):
                 break
             else:
                 if winner.capitalize() == 'Draw':
-                    for player_instance in tournament_object.player_instances:
+                    for player_instance in current_tournament.player_instances:
                         if player_instance['local_player_index'] == match[0]:
                             player_instance['points'] += 0.5
                         if player_instance['local_player_index'] == match[1]:
@@ -244,55 +318,27 @@ def point_counter(tournament_object, round_number):
                 break
             else:
                 if int(winner) == match[0]:
-                    for player_instance in tournament_object.player_instances:
+                    for player_instance in current_tournament.player_instances:
                         if player_instance['local_player_index'] == match[0]:
                             player_instance['points'] += 1
                 if int(winner) == match[1]:
-                    for player_instance in tournament_object.player_instances:
+                    for player_instance in current_tournament.player_instances:
                         if player_instance['local_player_index'] == match[1]:
                             player_instance['points'] += 1
                 break
+        match_number += 1
+        current_match = generate_match_object().create_match(round_number, match_number, winner, current_round)
+        end_match(current_round, current_match)
+    end_round(current_tournament, current_round)
+    current_tournament.update_player_instances(current_tournament.player_instances)
 
-    tournament_object.update_player_instances(tournament_object.player_instances)
 
-def start_round(round_number, current_tournament):
-    while True:
-        try:
-            start_of_round = str(input('Press y to start the round: '))
-            assert start_of_round == 'y'
-        except AssertionError:
-            print('Please press the indicated key to start the round.')
-        else:
-            current_round = generate_round_object().create_round(round_number, current_tournament)
-            return current_round
-
-def end_round(round):
-    while True:
-        try:
-            end_of_round = str(input('Press y to end the round: '))
-            assert end_of_round == 'y'
-        except AssertionError:
-            print('Please press the indicated key to end the round.')
-        else:
-            while True:
-                duration = input('How long did the round last? (number of hours only in decimal form, ex. 1.5)')
-                try:
-                    float(duration)
-                except ValueError:
-                    print('Please enter a valid number.')
-                    continue
-                else:
-                    duration = float(duration)
-                    break
-            end_of_round = round.start_of_round + datetime.timedelta(hours=duration)
-            round.end_of_round = end_of_round.strftime("%H:%M:%S")
-            round.start_of_round = round.start_of_round.strftime("%H:%M:%S")
-            print('Current round ended: ' + round.end_of_round)
-            break
 # TODO Testes ci-dessous, algo fonctionne
 
-current_tournament = generate_tournament_object().access_tournament_object("Name 23/02/21")
-'''current_tournament.generate_round_1_matches()
+'''current_tournament = generate_tournament_object().access_tournament_object("Name 23/02/21")
+print(current_tournament.delete_match(1, 3))
+
+current_tournament.generate_round_1_matches()
 point_counter(current_tournament, 1)
 print('End of round 1. ')
 current_tournament.swiss_method_pairing()
@@ -303,14 +349,4 @@ point_counter(current_tournament, 3)
 print('End of round 3. ')
 current_tournament.swiss_method_pairing()
 point_counter(current_tournament, 4)
-print('End of round 4. ')
-
-print(current_tournament.player_instances)
-print(current_tournament.round_descriptions)'''
-
-current_round = start_round(1, current_tournament)
-end_round(current_round)
-
-print(current_round.start_of_round)
-print(current_round.end_of_round)
-print(current_round.matches)
+print('End of round 4. ')'''
