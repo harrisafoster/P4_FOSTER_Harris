@@ -1,19 +1,18 @@
 from tinydb import TinyDB, Query, where
-import datetime
 
 
 class Match:
-    query = Query()
-
-    def __init__(self, round_number, match_number, date, start_of_match, end_of_match, players, winner, time_ctrl):
-        self.round_number = round_number
-        self.match_number = match_number
-        self.date = date
-        self.start_of_match = start_of_match
-        self.end_of_match = end_of_match
-        self.players = players
-        self.winner = winner
-        self.time_ctrl = time_ctrl
+    def __init__(self, json_file):
+        self.query = Query()
+        self.db_tournaments = TinyDB(json_file)
+        self.round_number = 0
+        self.match_number = 0
+        self.date = ""
+        self.start_of_match = None
+        self.end_of_match = None
+        self.players = []
+        self.winner = []
+        self.time_ctrl = ""
 
     def serialize_match(self):
         match_data = {
@@ -28,48 +27,25 @@ class Match:
         }
         return match_data
 
-    # TODO test
-    @classmethod
-    def create_match(cls, round_number, match_number, winner, current_round_instance, duration):
-        date = str(current_round_instance.date)
-        start_of_match = current_round_instance.start_of_round
-        players = current_round_instance.matches[match_number - 1]
-        time_ctrl = current_round_instance.time_ctrl
-        end_of_match = current_round_instance.start_of_round + datetime.timedelta(hours=duration)
-        match_instance_data = Match(
-            round_number, match_number, date, start_of_match, end_of_match, players, winner, time_ctrl)
-        return match_instance_data
+    def create_match(self, round_number, match_number, winner, current_round_instance):
+        self.round_number = round_number
+        self.match_number = match_number
+        self.date = str(current_round_instance.date)
+        self.start_of_match = current_round_instance.start_of_round
+        self.end_of_match = None
+        self.players = current_round_instance.matches[match_number - 1]
+        self.winner = winner
+        self.time_ctrl = current_round_instance.time_ctrl
+        return self
 
-    # TODO test
-    @classmethod
-    def read_one_match(cls, round_number, match_number, tournament):
-        db_tournaments = TinyDB('tournaments.json')
-        return db_tournaments.search(
-            where('tournament_name') == tournament.name
-            and where('round_number' == round_number)
-            and where('match_number' == match_number))
+    def read_one_match(self, round_number, match_number, tournament_object):
+        tournament_dict = self.db_tournaments.search(where('name_of_tournament') ==
+                                                     tournament_object.name_of_tournament)
+        match_instances = tournament_dict[0]['match_instances']
+        matches_per_round = len(tournament_object.round_descriptions[0])
+        return match_instances[((round_number-1) * matches_per_round) + (match_number-1)]
 
-    # TODO test
-    @classmethod
-    def read_all_matches(cls, tournament):
-        db_tournaments = TinyDB('tournaments.json')
-        current_tournament = db_tournaments.search(Match.query.tournament_name == tournament.name)
-        return current_tournament['match_instances']
-
-    # TODO test
-    @classmethod
-    def update_match(cls, round_number, match_number, tournament):
-        db_tournaments = TinyDB('tournaments.json')
-        placement = round_number * 4
-        db_tournaments.update({'match_instances'[placement - match_number]:
-                                   tournament.match_instances[placement - match_number]},
-                              Match.query["Name of tournament: "] == tournament.name)
-
-    # TODO test
-    @classmethod
-    def delete_round(cls, round_number, match_number, tournament):
-        db_tournaments = TinyDB('tournaments.json')
-        db_tournaments.remove(
-            where('tournament_name') == tournament.name
-            and where('round_number') == round_number
-            and where('match_number') == match_number)
+    def read_all_matches(self, tournament_object):
+        current_tournament = self.db_tournaments.search(self.query.name_of_tournament ==
+                                                        tournament_object.name_of_tournament)
+        return current_tournament[0]['match_instances']
