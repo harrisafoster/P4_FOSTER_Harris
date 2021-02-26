@@ -107,6 +107,14 @@ class Tournament:
         self.db_tournaments.update({'match_instances': self.match_instances},
                                    self.query["name_of_tournament"] == self.name_of_tournament)
 
+    def update_end_date(self):
+        self.db_tournaments.update({'end_date': self.end_date},
+                                   self.query['name_of_tournament'] == self.name_of_tournament)
+
+    def update_done_status(self):
+        self.db_tournaments.update({'done': self.done},
+                                   self.query['name_of_tournament'] == self.name_of_tournament)
+
     def get_local_player_index_numbers(self):
         local_player_index_numbers = []
         for player in self.player_instances:
@@ -154,7 +162,9 @@ class Tournament:
                 for player_b in local_player_index_numbers:
                     if player_b != player_a and player_b not in list(itertools.chain.from_iterable(matches)):
                         if not self.check_if_already_played((player_a, player_b)) \
-                                and not self.check_if_already_played((player_b, player_a)):
+                                and not self.check_if_already_played([player_a, player_b])\
+                                and not self.check_if_already_played((player_b, player_a))\
+                                and not self.check_if_already_played([player_b, player_a]):
                             matches.append((player_a, player_b))
                             break
         return matches
