@@ -6,19 +6,13 @@ def show_tournament(tournament):
     print(tournament['name_of_tournament'])
 
 
-def show_players(players):
-    print('Currently, the saved players in the database are: ')
-    for player in players:
-        print(player)
-
-
 def show_one_player(player_object, email):
     print(player_object.read_one_player(email))
 
 
 def show_all_tournament_names_and_dates(list_of_tournaments):
     for tournament in list_of_tournaments:
-        print(tournament['name_of_tournament'] + ' ' + tournament['start_date'])
+        print(tournament['name_of_tournament'])
 
 
 def show_one_tournament(tournament_object, name_of_tournament):
@@ -85,6 +79,18 @@ def show_local_tournament_report_options():
           "\n Input(number choice only): ")
 
 
-def show_list(list_to_show):
+def show_list(message, list_to_show):
+    if message:
+        print(message)
     for item in list_to_show:
         print(item)
+
+
+def show_player_manipulation_options():
+    print("Would you like to: "
+          "\n (1) Edit player rankings"
+          "\n (2) Delete a specific player"
+          "\n (3) Edit a specific player"
+          "\n (4) Add a player or players to the database"
+          "\n (5) Return to the main menu"
+          "\n Input(number of choice only): ")
