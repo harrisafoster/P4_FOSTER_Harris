@@ -122,6 +122,15 @@ class Tournament:
     def sort_players_by_points_descending(self):
         self.player_instances.sort(key=operator.itemgetter('local_player_index'))
         self.player_instances.sort(key=operator.itemgetter('points'), reverse=True)
+        return self.player_instances
+
+    def sort_players_by_local_index(self):
+        self.player_instances.sort(key=operator.itemgetter('local_player_index'))
+        return self.player_instances
+
+    def sort_players_by_last_name(self):
+        self.player_instances.sort(key=operator.itemgetter('last_name'))
+        return self.player_instances
 
     def sort_players_by_points_ascending(self):
         self.player_instances.sort(key=operator.itemgetter('local_player_index'))
@@ -185,8 +194,10 @@ class Tournament:
             local_player_index += 1
             filtered_player = {'local_player_index': local_player_index,
                                'email': player_instance['email'],
+                               'last_name': player_instance['last_name'],
                                'first_name': player_instance['first_name'],
-                               'points': 0}
+                               'points': 0,
+                               'current_ranking': player_instance['ranking']}
             filtered_player_instances.append(filtered_player)
         self.update_player_instances(filtered_player_instances)
 
