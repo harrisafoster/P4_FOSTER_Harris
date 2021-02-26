@@ -7,6 +7,7 @@ import datetime
 
 
 def get_new_player_data():
+    print("Enter the new player's information below: ")
     while True:
         email = input("Enter player's email address: ")
         try:
@@ -36,90 +37,6 @@ def get_new_player_data():
     Player('players.json').create_player(email, last_name, first_name, date_of_birth, sex, ranking)
 
 
-def update_player_data():
-    if len(Player('players.json').db_players.all()) > 0:
-        player_email_addresses = Player('players.json').get_player_emails()
-        views.show_players(Player('players.json').read_player_list())
-        while True:
-            email = input("Which player would you like to edit? "
-                          "(enter the player's email address to access the correct player instance.) ")
-            try:
-                assert email in player_email_addresses
-            except AssertionError:
-                print('Sorry, you need to enter an email address that is currently present in the database.')
-                views.show_players(Player('players.json').read_player_list())
-                continue
-            else:
-                views.show_one_player(Player('players.json'), email)
-                break
-        views.show_modifiable_fields()
-        fields_to_edit = input()
-        if '1' in fields_to_edit:
-            last_name = input("Enter the player's modified last name: ").upper()
-        else:
-            last_name = None
-        if '2' in fields_to_edit:
-            first_name = input("Enter the player's modified first name: ").capitalize()
-        else:
-            first_name = None
-        if '3' in fields_to_edit:
-            date_of_birth = input("Enter the player's modified date of birth (format dd/mm/yyyy): ")
-        else:
-            date_of_birth = None
-        if '4' in fields_to_edit:
-            sex = input("Enter the player's modified sex: ")
-        else:
-            sex = None
-        if '5' in fields_to_edit:
-            ranking = input("Enter the player's modified ranking: ")
-        else:
-            ranking = None
-        if '6' in fields_to_edit:
-            new_email = input("Enter the player's modified email address: ")
-        else:
-            new_email = None
-        Player('players.json').update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
-    else:
-        print("There aren't any players saved in the database.")
-
-
-def update_player_rankings():
-    views.show_players(Player('players.json').read_player_list())
-    confirm = input("Would you like to update all player rankings? (y/n) ")
-    if confirm == 'y':
-        for player in Player('players.json').db_players.all():
-            views.show_one_player(Player('players.json'), player['email'])
-            while True:
-                try:
-                    new_ranking = int(input("Enter the player's new ranking: "))
-                except ValueError:
-                    print('Please enter only numerical values. ')
-                    continue
-                else:
-                    Player('players.json').update_ranking(player['email'], new_ranking)
-                    break
-
-
-def remove_player():
-    if len(Player('players.json').db_players.all()) > 0:
-        player_email_addresses = Player('players.json').get_player_emails()
-        views.show_players(Player('players.json').read_player_list())
-        while True:
-            try:
-                email = input("Which player would you like to delete? "
-                              "(enter the player's email address to access the correct player instance.) ")
-                assert email in player_email_addresses
-            except AssertionError:
-                print('Sorry, you need to enter an email address that is currently present in the database.')
-                views.show_players(Player('players.json').read_player_list())
-                continue
-            else:
-                Player('players.json').delete_player(email)
-                break
-    else:
-        print("There aren't any players saved in the database.")
-
-
 def get_new_tournament_data():
     name_of_tournament = str(input('Enter name of tournament: ') + ' ' + str(datetime.date.today()))
     location = input('Enter location of tournament: ')
@@ -142,7 +59,7 @@ def get_new_tournament_data():
         else:
             nb_players = int(nb_players)
             break
-    views.show_players(Player('players.json').read_player_list())
+    views.show_list('Players currently in the database are: ', Player('players.json').read_player_list())
     player_emails = []
     counter = 1
     while len(player_emails) < nb_players:
@@ -301,7 +218,7 @@ def point_counter(current_tournament, round_number):
 
 
 def local_player_report_by_last_name(chosen_tournament):
-    views.show_list(chosen_tournament.sort_players_by_last_name())
+    views.show_list('Players sorted by last name', chosen_tournament.sort_players_by_last_name())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -311,7 +228,7 @@ def local_player_report_by_last_name(chosen_tournament):
 
 
 def local_player_report_by_relative_ranking(chosen_tournament):
-    views.show_list(chosen_tournament.sort_players_by_local_index())
+    views.show_list('Players sorted by rank: ', chosen_tournament.sort_players_by_local_index())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -321,7 +238,7 @@ def local_player_report_by_relative_ranking(chosen_tournament):
 
 
 def local_player_report_by_points(chosen_tournament):
-    views.show_list(chosen_tournament.sort_players_by_points_descending())
+    views.show_list('Players sorted by points: ', chosen_tournament.sort_players_by_points_descending())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -331,7 +248,7 @@ def local_player_report_by_points(chosen_tournament):
 
 
 def local_round_report(chosen_tournament):
-    views.show_list(Round('tournaments.json').read_all_rounds(chosen_tournament))
+    views.show_list('All rounds: ', Round('tournaments.json').read_all_rounds(chosen_tournament))
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -341,7 +258,7 @@ def local_round_report(chosen_tournament):
 
 
 def local_match_report(chosen_tournament):
-    views.show_list(Match('tournaments.json').read_all_matches(chosen_tournament))
+    views.show_list('All matches: ', Match('tournaments.json').read_all_matches(chosen_tournament))
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -401,7 +318,7 @@ def report_menu_local_reports():
 
 
 def global_report_players_by_last_name():
-    views.show_list(Player('players.json').sort_all_players_by_last_name())
+    views.show_list('Players sorted by last name', Player('players.json').sort_all_players_by_last_name())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -411,7 +328,7 @@ def global_report_players_by_last_name():
 
 
 def global_report_players_by_ranking():
-    views.show_list(Player('players.json').sort_all_players_by_ranking())
+    views.show_list('Players by ranking: ', Player('players.json').sort_all_players_by_ranking())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -502,95 +419,159 @@ def main_report_menu():
         main_menu()
 
 
-'''def menu_2_4():
+def add_players():
     players_to_add = input('Would you like to add any players to the database? (y/n)')
     if players_to_add == 'y':
-        number_to_add = input('How many players would you like to add? (numbers only)')
-        for x in range(int(number_to_add)):
-            Player.add_player(None)
-        all_done = input(
-            "When you're finished, press q to return to the main menu or press b to return to the previous menu.")
+        while True:
+            number_of_players_to_add = input('How many players would you like to add? (numbers only)')
+            try:
+                int(number_of_players_to_add)
+            except ValueError:
+                print('Please enter only whole numbers. ')
+                continue
+            else:
+                number_of_players_to_add = int(number_of_players_to_add)
+                break
+        for x in range(int(number_of_players_to_add)):
+            get_new_player_data()
+        views.when_finished()
+        all_done = input()
         if all_done == 'q':
             main_menu()
         else:
-            menu_2()
-    if players_to_add == 'n' or not players_to_add:
-        main_menu()
+            player_manipulation_menu()
+    if players_to_add != 'y' or not players_to_add:
+        player_manipulation_menu()
 
 
-def menu_2_3():
-    Player.edit_player()
-    all_done = input(
-        "When you're finished, press q to return to the main menu or press b to return to the previous menu.")
-    if all_done == 'q':
-        main_menu()
-    else:
-        menu_2()
-
-
-def menu_2_2():
-    Player.remove_player()
-    all_done = input(
-        "When you're finished, press q to return to the main menu or press b to return to the previous menu.")
-    if all_done == 'q':
-        main_menu()
-    else:
-        menu_2()
-
-
-def menu_2_1():
-    query = Query()
-    for item in Player.db_players:
-        print(item)
-        new_ranking = input("What is the player's new ranking? (numbers only)")
-        Player.db_players.update({'Ranking': new_ranking}, query["Player ID"] == item['Player ID'])
-        players = Player.db_players.all()
-        players.sort(key=operator.itemgetter('Ranking'))
-        print('New list of all players sorted by rank: ')
-        for player in players:
-            print(player)
-        all_done = input(
-            "When you're finished, press q to return to the main menu or press b to return to the previous menu.")
-        if all_done == 'q':
-            main_menu()
+def update_player():
+    if len(Player('players.json').db_players.all()) > 0:
+        player_email_addresses = Player('players.json').get_player_emails()
+        views.show_list(None, Player('players.json').read_player_list())
+        while True:
+            email = input("Which player would you like to edit? "
+                          "(enter the player's email address to access the correct player instance.) ")
+            try:
+                assert email in player_email_addresses
+            except AssertionError:
+                print('Sorry, you need to enter an email address that is currently present in the database.')
+                views.show_list(None, Player('players.json').read_player_list())
+                continue
+            else:
+                views.show_one_player(Player('players.json'), email)
+                break
+        views.show_modifiable_fields()
+        fields_to_edit = input()
+        if '1' in fields_to_edit:
+            last_name = input("Enter the player's modified last name: ").upper()
         else:
-            menu_2()
+            last_name = None
+        if '2' in fields_to_edit:
+            first_name = input("Enter the player's modified first name: ").capitalize()
+        else:
+            first_name = None
+        if '3' in fields_to_edit:
+            date_of_birth = input("Enter the player's modified date of birth (format dd/mm/yyyy): ")
+        else:
+            date_of_birth = None
+        if '4' in fields_to_edit:
+            sex = input("Enter the player's modified sex: ")
+        else:
+            sex = None
+        if '5' in fields_to_edit:
+            ranking = input("Enter the player's modified ranking: ")
+        else:
+            ranking = None
+        if '6' in fields_to_edit:
+            new_email = input("Enter the player's modified email address: ")
+        else:
+            new_email = None
+        Player('players.json').update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
+        print('Player edited successfully.')
+    else:
+        print("There aren't any players saved in the database.")
+    views.when_finished()
+    all_done = input()
+    if all_done == 'q':
+        main_menu()
+    else:
+        player_manipulation_menu()
 
 
-def menu_2():
-    print("Currently, the players saved in the database are: ")
-    for item in Player.db_players.all():
-        print(item)
+def delete_player():
     while True:
+        choice = str(input('Which player would you like to delete? (email address only)'))
         try:
-            sub_choice = int(input("Would you like to: "
-                                   "\n (1) Edit player rankings"
-                                   "\n (2) Remove a specific player"
-                                   "\n (3) Edit a specific player"
-                                   "\n (4) Add a player or players to the database"
-                                   "\n (5) Return to the main menu"
-                                   "\n Input(number of choice only): "))
+            assert choice in Player('players.json').get_player_emails()
+        except AssertionError:
+            print('Please enter an email address that is present in the database')
+            continue
+        else:
+            Player('players.json').delete_player(choice)
+            break
+    print('Player deleted. ')
+    views.when_finished()
+    all_done = input()
+    if all_done == 'q':
+        main_menu()
+    else:
+        player_manipulation_menu()
+
+
+def update_all_rankings():
+    for item in Player('players.json').read_player_list():
+        print(item)
+        while True:
+            new_ranking = input("What is the player's new ranking? (numbers only)")
+            try:
+                int(new_ranking)
+            except ValueError:
+                print('Please enter whole numbers only ')
+                continue
+            else:
+                new_ranking = int(new_ranking)
+                break
+        Player('players.json').db_players.update({'ranking': new_ranking},
+                                                 Player('players.json').query["email"] == item['email'])
+    views.show_list('New list of all players sorted by rank: ',
+                    Player('players.json').sort_all_players_by_ranking())
+    views.when_finished()
+    all_done = input()
+    if all_done == 'q':
+        main_menu()
+    else:
+        player_manipulation_menu()
+
+
+def player_manipulation_menu():
+    views.show_list("Currently, the players saved in the database are: ", Player('players.json').read_player_list())
+    while True:
+        views.show_player_manipulation_options()
+        choice = input()
+        try:
+            int(choice)
         except ValueError:
             print("Sorry, I didn't understand that.")
-
-        if sub_choice not in range(6) or sub_choice == 0:
+            continue
+        if int(choice) not in range(6) or int(choice) == 0:
             print("Sorry, you need to select one of the available options.")
             continue
         else:
+            choice = int(choice)
             break
-    if sub_choice == 1:
-        menu_2_1()
-    if sub_choice == 2:
-        menu_2_2()
-    if sub_choice == 3:
-        menu_2_3()
-    if sub_choice == 4:
-        menu_2_4()
-    if sub_choice == 5:
+    if choice == 1:
+        update_all_rankings()
+    if choice == 2:
+        delete_player()
+    if choice == 3:
+        update_player()
+    if choice == 4:
+        add_players()
+    if choice == 5:
         main_menu()
 
 
-def menu_3_2():
+'''def menu_3_2():
     proceed = input('Proceed with resuming a tournament? (y/n): ')
     if proceed == 'y':
         tournament_names = []
@@ -671,9 +652,9 @@ def main_menu():
             break
     if choice == 1:
         main_report_menu()
-    '''if choice == 2:
-        menu_2()
-    if choice == 3:
+    if choice == 2:
+        player_manipulation_menu()
+    '''if choice == 3:
         menu_3()
     if choice == 4:
         exit(0)'''
