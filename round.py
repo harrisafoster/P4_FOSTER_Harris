@@ -6,7 +6,7 @@ class Round:
     def __init__(self, json_file):
         self.db_tournaments = TinyDB(json_file)
         self.query = Query()
-        self.tournament_name = ""
+        self.name_of_tournament = ""
         self.round_number = 0
         self.date = ""
         self.start_of_round = None
@@ -16,7 +16,7 @@ class Round:
 
     def serialize_round(self):
         round_data = {
-            "tournament_name": self.tournament_name,
+            "name_of_tournament": self.name_of_tournament,
             "round_number": self.round_number,
             "date": self.date,
             "start_of_round": self.start_of_round,
@@ -27,7 +27,7 @@ class Round:
         return round_data
 
     def create_round(self, round_number, tournament):
-        self.tournament_name = tournament.name_of_tournament
+        self.name_of_tournament = tournament.name_of_tournament
         self.round_number = round_number
         self.date = str(datetime.date.today())
         self.start_of_round = datetime.datetime.now()
