@@ -11,6 +11,7 @@ def show_one_player(player_object, email):
 
 
 def show_all_tournament_names_and_dates(list_of_tournaments):
+    print('The tournaments currently present in the database are: ')
     for tournament in list_of_tournaments:
         print(tournament['name_of_tournament'])
 
@@ -93,4 +94,12 @@ def show_player_manipulation_options():
           "\n (3) Edit a specific player"
           "\n (4) Add a player or players to the database"
           "\n (5) Return to the main menu"
+          "\n Input(number of choice only): ")
+
+
+def show_tournament_management_options():
+    print("Would you like to: "
+          "\n (1) Create and start a tournament"
+          "\n (2) Resume a tournament that has already begun"
+          "\n (3) Return to the main menu"
           "\n Input(number of choice only): ")
