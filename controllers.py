@@ -267,7 +267,7 @@ def local_match_report(chosen_tournament):
         report_menu_local_reports()
 
 
-def report_menu_local_reports():
+def choose_and_access_tournament_for_report():
     views.show_all_tournament_names_and_dates(Tournament('tournaments.json').read_all_tournaments())
     if len(Tournament('tournaments.json').read_all_tournaments()) == 0:
         print("There are no currently saved tournaments.")
@@ -286,34 +286,39 @@ def report_menu_local_reports():
             else:
                 break
         chosen_tournament = Tournament('tournaments.json').access_tournament_object(choice)
-        while True:
-            views.show_local_tournament_report_options()
-            sub_choice = input()
-            try:
-                int(sub_choice)
-            except ValueError:
-                print("Sorry, I didn't understand that.")
-                continue
+    return chosen_tournament
 
-            if int(sub_choice) not in range(8) or int(sub_choice) == 0:
-                print("Sorry, you need to select one of the available options.")
-                continue
-            else:
-                sub_choice = int(sub_choice)
-                break
-    if sub_choice == 1:
+
+def report_menu_local_reports():
+    chosen_tournament = choose_and_access_tournament_for_report()
+    while True:
+        views.show_local_tournament_report_options()
+        choice = input()
+        try:
+            int(choice)
+        except ValueError:
+            print("Sorry, I didn't understand that.")
+            continue
+
+        if int(choice) not in range(8) or int(choice) == 0:
+            print("Sorry, you need to select one of the available options.")
+            continue
+        else:
+            choice = int(choice)
+            break
+    if choice == 1:
         local_player_report_by_last_name(chosen_tournament)
-    if sub_choice == 2:
+    if choice == 2:
         local_player_report_by_relative_ranking(chosen_tournament)
-    if sub_choice == 3:
+    if choice == 3:
         local_player_report_by_points(chosen_tournament)
-    if sub_choice == 4:
+    if choice == 4:
         local_round_report(chosen_tournament)
-    if sub_choice == 5:
+    if choice == 5:
         local_match_report(chosen_tournament)
-    if sub_choice == 6:
+    if choice == 6:
         main_menu()
-    if sub_choice == 7:
+    if choice == 7:
         main_report_menu()
 
 
@@ -571,68 +576,121 @@ def player_manipulation_menu():
         main_menu()
 
 
-'''def menu_3_2():
-    proceed = input('Proceed with resuming a tournament? (y/n): ')
-    if proceed == 'y':
-        tournament_names = []
-        for item in Tournament.all_tournaments:
-            tournament_names.append(item['Name of tournament: '])
-        if len(tournament_names) == 0:
-            print("There are no currently saved tournaments.")
-            all_done = input(
-                "When you're finished, press q to return to the main menu or press b to return to the previous menu.")
-            if all_done == 'q':
-                main_menu()
-            else:
-                menu_3()
-        else:
-            resume_tournament()
-            all_done = input(
-                "When you're finished, press q to return to the main menu or press b to return to the previous menu.")
-            if all_done == 'q':
-                main_menu()
-            else:
-                menu_3()
-    if proceed != 'y':
-        menu_3()
-
-
-def menu_3_1():
-    proceed = input('Proceed with creating and starting a tournament? (y/n): ')
-    if proceed == 'y':
-        create_and_start_tournament()
-        all_done = input(
-            "When you're finished, press q to return to the main menu or press b to return to the previous menu.")
-        if all_done == 'q':
-            main_menu()
-        else:
-            menu_3()
-    if proceed != 'y':
-        menu_3()
-
-
-def menu_3():
+def continue_tournament():
+    available_options = [1, 2]
     while True:
+        user_input = int(input("Would you like to: "
+                               "\n (1) Proceed with the tournament"
+                               "\n (2) Save your progress?"))
         try:
-            sub_choice = int(input("Would you like to: "
-                                   "\n (1) Create and start a tournament"
-                                   "\n (2) Resume a tournament that has already begun"
-                                   "\n (3) Return to the main menu"
-                                   "\n Input(number of choice only): "))
-        except ValueError:
-            print("Sorry, I didn't understand that.")
-
-        if sub_choice not in range(4) or sub_choice == 0:
-            print("Sorry, you need to select one of the available options.")
+            assert user_input in available_options
+        except AssertionError:
+            print('Please enter a valid option choice')
             continue
         else:
             break
-    if sub_choice == 1:
-        menu_3_1()
-    if sub_choice == 2:
-        menu_3_2()
-    if sub_choice == 3:
-        main_menu()'''
+    if user_input == 1:
+        return True
+    if user_input == 2:
+        return False
+
+
+def execute_tournament(tournament):
+    if tournament.done:
+        print('This tournament has already ended.')
+        pass
+    if not tournament.done:
+        if not tournament.round_descriptions:
+            tournament.generate_round_1_matches()
+        while True:
+            if len(tournament.round_descriptions) < tournament.nb_rounds:
+                if not continue_tournament():
+                    break
+                point_counter(tournament, len(tournament.round_descriptions))
+                tournament.swiss_method_pairing()
+            if len(tournament.round_descriptions) == tournament.nb_rounds:
+                if not continue_tournament():
+                    break
+                point_counter(tournament, len(tournament.round_descriptions))
+                tournament.done = True
+                tournament.end_date = str(datetime.date.today())
+                tournament.update_end_date()
+                tournament.update_done_status()
+                print('This tournament has ended.')
+                break
+
+
+def resume_tournament():
+    proceed = input('Proceed with resuming a tournament? (y/n): ')
+    if proceed == 'y':
+        views.show_all_tournament_names_and_dates(Tournament('tournaments.json').db_tournaments.all())
+        if len(Tournament('tournaments.json').db_tournaments.all()) == 0:
+            print("There are no currently saved tournaments.")
+            views.when_finished()
+            all_done = input()
+            if all_done == 'q':
+                main_menu()
+            else:
+                tournament_management_menu()
+        else:
+            while True:
+                choice = input(
+                    'Which tournament would you like to resume? (name and date only, format: Name yyyy-mm-dd)')
+                try:
+                    assert choice in Tournament('tournaments.json').get_tournament_names()
+                except AssertionError:
+                    print("Sorry, you need to choose one of the available options.")
+                    continue
+                else:
+                    break
+            current_tournament = Tournament('tournaments.json').access_tournament_object(choice)
+            execute_tournament(current_tournament)
+            views.when_finished()
+            all_done = input()
+            if all_done == 'q':
+                main_menu()
+            else:
+                tournament_management_menu()
+    if proceed != 'y':
+        tournament_management_menu()
+
+
+def create_and_start_tournament():
+    proceed = input('Proceed with creating and starting a tournament? (y/n): ')
+    if proceed == 'y':
+        current_tournament = Tournament('tournaments.json').access_tournament_object(get_new_tournament_data())
+        execute_tournament(current_tournament)
+        views.when_finished()
+        all_done = input()
+        if all_done == 'q':
+            main_menu()
+        else:
+            tournament_management_menu()
+    if proceed != 'y':
+        tournament_management_menu()
+
+
+def tournament_management_menu():
+    while True:
+        views.show_tournament_management_options()
+        choice = input()
+        try:
+            int(choice)
+        except ValueError:
+            print("Sorry, I didn't understand that.")
+            continue
+        if int(choice) not in range(4) or int(choice) == 0:
+            print("Sorry, you need to select one of the available options.")
+            continue
+        else:
+            choice = int(choice)
+            break
+    if choice == 1:
+        create_and_start_tournament()
+    if choice == 2:
+        resume_tournament()
+    if choice == 3:
+        main_menu()
 
 
 def main_menu():
@@ -654,27 +712,12 @@ def main_menu():
         main_report_menu()
     if choice == 2:
         player_manipulation_menu()
-    '''if choice == 3:
-        menu_3()
+    if choice == 3:
+        tournament_management_menu()
     if choice == 4:
-        exit(0)'''
+        exit(0)
 
 
 # TODO Testes ci-dessous, algo fonctionne
-
-'''current_tournament = Tournament('tournaments.json').access_tournament_object(get_new_tournament_data())
-
-current_tournament.generate_round_1_matches()
-point_counter(current_tournament, 1)
-print('End of round 1. ')
-current_tournament.swiss_method_pairing()
-point_counter(current_tournament, 2)
-print('End of round 2. ')
-current_tournament.swiss_method_pairing()
-point_counter(current_tournament, 3)
-print('End of round 3. ')
-current_tournament.swiss_method_pairing()
-point_counter(current_tournament, 4)
-print('End of round 4. ')'''
 
 main_menu()
