@@ -1,4 +1,5 @@
 from tinydb import TinyDB, Query, where
+import operator
 
 
 class Player:
@@ -63,3 +64,13 @@ class Player:
 
     def delete_player(self, email):
         self.db_players.remove(where('email') == email)
+
+    def sort_all_players_by_ranking(self):
+        list_of_players = self.db_players.all()
+        list_of_players.sort(key=operator.itemgetter('ranking'))
+        return list_of_players
+
+    def sort_all_players_by_last_name(self):
+        list_of_players = self.db_players.all()
+        list_of_players.sort(key=operator.itemgetter('last_name'))
+        return list_of_players
