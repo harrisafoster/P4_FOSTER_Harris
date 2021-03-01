@@ -1,13 +1,16 @@
 def when_finished():
     print("When you're finished, press q to return to the main menu or press b to return to the previous menu.")
+# 'print' of options after a menu option has been exhausted
 
 
 def show_tournament(tournament):
     print(tournament['name_of_tournament'])
+# shows name and date of a specified tournament
 
 
 def show_one_player(player_object, email):
     print(player_object.read_one_player(email))
+# shows the player associated with the specified email address
 
 
 def show_all_tournament_names_and_dates(list_of_tournaments):
@@ -18,6 +21,7 @@ def show_all_tournament_names_and_dates(list_of_tournaments):
 
 def show_one_tournament(tournament_object, name_of_tournament):
     print(tournament_object.read_one_tournament(name_of_tournament))
+# shows a complete database entry for the specified tournament
 
 
 def show_modifiable_fields():
@@ -31,6 +35,7 @@ def show_modifiable_fields():
           "\n Enter only the numerical values of the fields "
           "that you would like to edit. (ex. 1 2 3)"
           "\n Input:  ")
+# shows the aspects of a player than can be modified
 
 
 def show_main_menu_choices():
@@ -85,6 +90,8 @@ def show_list(message, list_to_show):
         print(message)
     for item in list_to_show:
         print(item)
+# prints specified messages
+# prints the specified list item by item
 
 
 def show_player_manipulation_options():
