@@ -1,7 +1,7 @@
-from player import Player
-from tournament import Tournament
-from round import Round
-from match import Match
+from models.player import Player
+from models.tournament import Tournament
+from models.round import Round
+from models.match import Match
 import views
 import datetime
 
@@ -599,6 +599,8 @@ def execute_tournament(tournament):
     if tournament.done:
         print('This tournament has already ended.')
         pass
+    views.show_list('Players present in this tournament are (local index numbers used for pairings): ',
+                    tournament.player_instances)
     if not tournament.done:
         if not tournament.round_descriptions:
             tournament.generate_round_1_matches()
@@ -606,6 +608,8 @@ def execute_tournament(tournament):
             if len(tournament.round_descriptions) < tournament.nb_rounds:
                 if not continue_tournament():
                     break
+                views.show_list("This round's matches are (by local index numbers): ",
+                                tournament.round_descriptions[len(tournament.round_descriptions)-1])
                 point_counter(tournament, len(tournament.round_descriptions))
                 tournament.swiss_method_pairing()
             if len(tournament.round_descriptions) == tournament.nb_rounds:
