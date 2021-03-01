@@ -25,6 +25,7 @@ class Round:
             "time_ctrl": self.time_ctrl
         }
         return round_data
+    # creation of dict from self for use in database
 
     def create_round(self, round_number, tournament):
         self.name_of_tournament = tournament.name_of_tournament
@@ -35,6 +36,7 @@ class Round:
         self.matches = tournament.round_descriptions[round_number - 1]
         self.time_ctrl = tournament.time_ctrl
         return self
+    # creation of round object for use in tournaments
 
     def read_one_round(self, round_number, tournament):
         current_tournament = self.db_tournaments.search(self.query.name_of_tournament == tournament.name_of_tournament)
