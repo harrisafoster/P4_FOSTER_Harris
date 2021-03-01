@@ -61,7 +61,22 @@ def get_new_tournament_data():
             nb_players = int(nb_players)
             break
     views.show_list('Players currently in the database are: ', Player('players.json').read_player_list())
+    players_to_add = input('Would you like to add any players to the database? (y/n)')
+    if players_to_add == 'y':
+        while True:
+            number_of_players_to_add = input('How many players would you like to add? (numbers only)')
+            try:
+                int(number_of_players_to_add)
+            except ValueError:
+                print('Please enter only whole numbers. ')
+                continue
+            else:
+                number_of_players_to_add = int(number_of_players_to_add)
+                break
+        for x in range(int(number_of_players_to_add)):
+            get_new_player_data()
     player_emails = []
+    print('Please enter the email addresses of the players that are participating in this tournament.')
     while len(player_emails) < nb_players:
         while True:
             try:
