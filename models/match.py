@@ -26,6 +26,7 @@ class Match:
             "time_ctrl": self.time_ctrl
         }
         return match_data
+    # creation of dict variable from self object, for use in database
 
     def create_match(self, round_number, match_number, winner, current_round_instance):
         self.round_number = round_number
@@ -37,6 +38,7 @@ class Match:
         self.winner = winner
         self.time_ctrl = current_round_instance.time_ctrl
         return self
+    # creation of match object for use in rounds
 
     def read_one_match(self, round_number, match_number, tournament_object):
         tournament_dict = self.db_tournaments.search(where('name_of_tournament') ==
