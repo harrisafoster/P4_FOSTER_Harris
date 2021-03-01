@@ -25,7 +25,8 @@ class Player:
         return player_data
     # creation of a dict of self for use in database
 
-    def create_player(self, email, last_name, first_name, date_of_birth, sex, ranking):
+    def create_player(self, email, last_name, first_name,
+                      date_of_birth, sex, ranking):
         self.email = email
         self.last_name = last_name
         self.first_name = first_name
@@ -41,22 +42,30 @@ class Player:
     def read_player_list(self):
         return self.db_players.all()
 
-    def update_player(self, email, last_name, first_name, date_of_birth, sex, ranking, new_email):
+    def update_player(self, email, last_name, first_name, date_of_birth,
+                      sex, ranking, new_email):
         if last_name:
-            self.db_players.update({'last_name': last_name}, self.query["email"] == email)
+            self.db_players.update({'last_name': last_name},
+                                   self.query["email"] == email)
         if first_name:
-            self.db_players.update({'first_name': first_name}, self.query["email"] == email)
+            self.db_players.update({'first_name': first_name},
+                                   self.query["email"] == email)
         if date_of_birth:
-            self.db_players.update({'date_of_birth': date_of_birth}, self.query["email"] == email)
+            self.db_players.update({'date_of_birth': date_of_birth},
+                                   self.query["email"] == email)
         if sex:
-            self.db_players.update({'sex': sex}, self.query["email"] == email)
+            self.db_players.update({'sex': sex},
+                                   self.query["email"] == email)
         if ranking:
-            self.db_players.update({'ranking': ranking}, self.query["email"] == email)
+            self.db_players.update({'ranking': ranking},
+                                   self.query["email"] == email)
         if new_email:
-            self.db_players.update({'email': new_email}, self.query["email"] == email)
+            self.db_players.update({'email': new_email},
+                                   self.query["email"] == email)
 
     def update_ranking(self, email, new_ranking):
-        self.db_players.update({'ranking': new_ranking}, self.query["email"] == email)
+        self.db_players.update({'ranking': new_ranking},
+                               self.query["email"] == email)
 
     def get_player_emails(self):
         player_emails = []

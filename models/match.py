@@ -28,7 +28,8 @@ class Match:
         return match_data
     # creation of dict variable from self object, for use in database
 
-    def create_match(self, round_number, match_number, winner, current_round_instance):
+    def create_match(self, round_number, match_number,
+                     winner, current_round_instance):
         self.round_number = round_number
         self.match_number = match_number
         self.date = str(current_round_instance.date)
@@ -41,13 +42,17 @@ class Match:
     # creation of match object for use in rounds
 
     def read_one_match(self, round_number, match_number, tournament_object):
-        tournament_dict = self.db_tournaments.search(where('name_of_tournament') ==
-                                                     tournament_object.name_of_tournament)
+        tournament_dict = self.db_tournaments.search(
+            where('name_of_tournament') ==
+            tournament_object.name_of_tournament)
         match_instances = tournament_dict[0]['match_instances']
         matches_per_round = len(tournament_object.round_descriptions[0])
-        return match_instances[((round_number-1) * matches_per_round) + (match_number-1)]
+        return match_instances[((round_number-1)
+                                * matches_per_round)
+                               + (match_number-1)]
 
     def read_all_matches(self, tournament_object):
-        current_tournament = self.db_tournaments.search(self.query.name_of_tournament ==
-                                                        tournament_object.name_of_tournament)
+        current_tournament = self.db_tournaments.search(
+            self.query.name_of_tournament ==
+            tournament_object.name_of_tournament)
         return current_tournament[0]['match_instances']

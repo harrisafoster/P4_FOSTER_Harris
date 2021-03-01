@@ -39,9 +39,11 @@ class Round:
     # creation of round object for use in tournaments
 
     def read_one_round(self, round_number, tournament):
-        current_tournament = self.db_tournaments.search(self.query.name_of_tournament == tournament.name_of_tournament)
+        current_tournament = self.db_tournaments.search(
+            self.query.name_of_tournament == tournament.name_of_tournament)
         return current_tournament[0]['round_instances'][round_number - 1]
 
     def read_all_rounds(self, tournament):
-        current_tournament = self.db_tournaments.search(self.query.name_of_tournament == tournament.name_of_tournament)
+        current_tournament = self.db_tournaments.search(
+            self.query.name_of_tournament == tournament.name_of_tournament)
         return current_tournament[0]['round_instances']
