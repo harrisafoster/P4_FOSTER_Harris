@@ -23,6 +23,7 @@ class Player:
             "ranking": self.ranking
         }
         return player_data
+    # creation of a dict of self for use in database
 
     def create_player(self, email, last_name, first_name, date_of_birth, sex, ranking):
         self.email = email
@@ -32,6 +33,7 @@ class Player:
         self.sex = sex
         self.ranking = ranking
         self.db_players.insert(self.serialize_player())
+    # creation of player object used to update the database
 
     def read_one_player(self, email):
         return self.db_players.search(self.query.email == email)
