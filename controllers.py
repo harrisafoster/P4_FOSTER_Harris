@@ -771,6 +771,3 @@ def main_menu():
     if choice == 4:
         exit(0)
 # main menu for whole program
-
-
-main_menu()
