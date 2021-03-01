@@ -35,6 +35,7 @@ def get_new_player_data():
             ranking = int(ranking)
             break
     Player('players.json').create_player(email, last_name, first_name, date_of_birth, sex, ranking)
+# Gets player data from the user, creates a new player in the database.
 
 
 def get_new_tournament_data():
@@ -61,11 +62,10 @@ def get_new_tournament_data():
             break
     views.show_list('Players currently in the database are: ', Player('players.json').read_player_list())
     player_emails = []
-    counter = 1
     while len(player_emails) < nb_players:
         while True:
             try:
-                email = input("Enter player " + str(counter) + "'s " + "email address: ")
+                email = input("Enter player's email address: ")
                 assert '@' in email
             except AssertionError:
                 print('Please enter a valid email address.')
@@ -79,10 +79,8 @@ def get_new_tournament_data():
                 if add_new_player == 'y':
                     get_new_player_data()
                     player_emails.append(Player('players.json').read_one_player(email)[0]['email'])
-                    counter += 1
                 continue
             else:
-                counter += 1
                 player_emails.append(email)
                 break
     while True:
@@ -100,6 +98,7 @@ def get_new_tournament_data():
     current_tournament = Tournament('tournaments.json').access_tournament_object(name_of_tournament)
     current_tournament.populate_player_instances()
     return current_tournament.name_of_tournament
+# Gets tournament data from the user, creates a new tournament in the database.
 
 
 def start_round(current_tournament, round_number):
@@ -112,6 +111,7 @@ def start_round(current_tournament, round_number):
         else:
             current_round = Round('tournaments.json').create_round(round_number, current_tournament)
             return current_round
+# Asks the user to confirm the start of the round, generates a round object (start_time auto-generated).
 
 
 def end_round(current_tournament, current_round):
@@ -139,6 +139,8 @@ def end_round(current_tournament, current_round):
             current_tournament.update_round_instances()
             print('Current round ended: ' + current_round.end_of_round)
             break
+# Asks the user to confirm the end of the round, gets total duration,
+# completes round object with new info, updates database
 
 
 def end_match(current_tournament, current_round, current_match):
@@ -166,6 +168,8 @@ def end_match(current_tournament, current_round, current_match):
             current_tournament.update_match_instances()
             print('Current match ended: ' + current_match.end_of_match)
             break
+# Asks the user to confirm the end of the match, gets total duration,
+# completes match object with new info, updates database
 
 
 def point_counter(current_tournament, round_number):
@@ -215,6 +219,8 @@ def point_counter(current_tournament, round_number):
         end_match(current_tournament, current_round, current_match)
     end_round(current_tournament, current_round)
     current_tournament.update_player_instances(current_tournament.player_instances)
+# Asks user for the winner of each match for specified round,
+# manages/generates match/round objects, updates database/objects with new info.
 
 
 def local_player_report_by_last_name(chosen_tournament):
@@ -225,6 +231,7 @@ def local_player_report_by_last_name(chosen_tournament):
         main_menu()
     else:
         report_menu_local_reports()
+# generates a report on all players of specified tournament sorted by last name
 
 
 def local_player_report_by_relative_ranking(chosen_tournament):
@@ -235,6 +242,8 @@ def local_player_report_by_relative_ranking(chosen_tournament):
         main_menu()
     else:
         report_menu_local_reports()
+# generates a report on all players of specified tournament sorted by ranking
+# (relative ranking refers to the player's local index numbers)
 
 
 def local_player_report_by_points(chosen_tournament):
@@ -245,6 +254,7 @@ def local_player_report_by_points(chosen_tournament):
         main_menu()
     else:
         report_menu_local_reports()
+# generates a report on all players of specified tournament sorted by final point count
 
 
 def local_round_report(chosen_tournament):
@@ -255,6 +265,7 @@ def local_round_report(chosen_tournament):
         main_menu()
     else:
         report_menu_local_reports()
+# generates a report on all rounds of the specified tournament
 
 
 def local_match_report(chosen_tournament):
@@ -265,6 +276,7 @@ def local_match_report(chosen_tournament):
         main_menu()
     else:
         report_menu_local_reports()
+# generates a report on all matches of the specified tournament
 
 
 def choose_and_access_tournament_for_report():
@@ -287,6 +299,8 @@ def choose_and_access_tournament_for_report():
                 break
         chosen_tournament = Tournament('tournaments.json').access_tournament_object(choice)
     return chosen_tournament
+# shows available tournaments, asks user to select one of the available options,
+# returns accessed tournament object.
 
 
 def report_menu_local_reports():
@@ -320,6 +334,7 @@ def report_menu_local_reports():
         main_menu()
     if choice == 7:
         main_report_menu()
+# menu function for reports on specific tournaments
 
 
 def global_report_players_by_last_name():
@@ -330,6 +345,7 @@ def global_report_players_by_last_name():
         main_menu()
     else:
         global_players_report_options()
+# generates a report on all saved players sorted by last name
 
 
 def global_report_players_by_ranking():
@@ -340,6 +356,7 @@ def global_report_players_by_ranking():
         main_menu()
     else:
         global_players_report_options()
+# generates a report on all saved players sorted by ranking
 
 
 def global_players_report_options():
@@ -364,6 +381,7 @@ def global_players_report_options():
         main_menu()
     if choice == 4:
         report_menu_global_reports()
+# menu function for reports on all players currently present in database
 
 
 def report_all_tournaments():
@@ -375,6 +393,7 @@ def report_all_tournaments():
         main_menu()
     else:
         report_menu_global_reports()
+# generates a report on all saved tournaments (prints names and dates)
 
 
 def report_menu_global_reports():
@@ -399,6 +418,7 @@ def report_menu_global_reports():
         main_menu()
     if choice == 4:
         main_report_menu()
+# menu function for all global reports
 
 
 def main_report_menu():
@@ -422,6 +442,7 @@ def main_report_menu():
         report_menu_local_reports()
     if choice == 3:
         main_menu()
+# main menu function for reports
 
 
 def add_players():
@@ -447,6 +468,8 @@ def add_players():
             player_manipulation_menu()
     if players_to_add != 'y' or not players_to_add:
         player_manipulation_menu()
+# Requests confirmation from user of add action, requests number to add from user
+# Gets data for all new players from user, adds the new players to the database
 
 
 def update_player():
@@ -501,6 +524,8 @@ def update_player():
         main_menu()
     else:
         player_manipulation_menu()
+# menu for selecting a player and editing the desired fields of said player
+# updates database with new info
 
 
 def delete_player():
@@ -521,6 +546,8 @@ def delete_player():
         main_menu()
     else:
         player_manipulation_menu()
+# menu for selecting a player and deleting said player
+# updates database with new info
 
 
 def update_all_rankings():
@@ -546,6 +573,7 @@ def update_all_rankings():
         main_menu()
     else:
         player_manipulation_menu()
+# updates all player rankings in the global database with user inputs
 
 
 def player_manipulation_menu():
@@ -574,6 +602,7 @@ def player_manipulation_menu():
         add_players()
     if choice == 5:
         main_menu()
+# menu used for manipulating player objects and database instances
 
 
 def continue_tournament():
@@ -593,6 +622,7 @@ def continue_tournament():
         return True
     if user_input == 2:
         return False
+# function used to save progress and pause the tournament to continue at a later time/date
 
 
 def execute_tournament(tournament):
@@ -622,6 +652,8 @@ def execute_tournament(tournament):
                 tournament.update_done_status()
                 print('This tournament has ended.')
                 break
+# runs the specified tournament from its current state until its end
+# unless the user elects to save progress.
 
 
 def resume_tournament():
@@ -657,6 +689,8 @@ def resume_tournament():
                 tournament_management_menu()
     if proceed != 'y':
         tournament_management_menu()
+# user selects a tournament to resume from available options
+# tournament is resumed and run
 
 
 def create_and_start_tournament():
@@ -672,6 +706,8 @@ def create_and_start_tournament():
             tournament_management_menu()
     if proceed != 'y':
         tournament_management_menu()
+# user creates a new tournament and enters all its data
+# new tournament is run until its end or until the user elects to save progress
 
 
 def tournament_management_menu():
@@ -695,6 +731,7 @@ def tournament_management_menu():
         resume_tournament()
     if choice == 3:
         main_menu()
+# main menu for creating/selecting/and resuming tournaments
 
 
 def main_menu():
@@ -720,8 +757,7 @@ def main_menu():
         tournament_management_menu()
     if choice == 4:
         exit(0)
+# main menu for whole program
 
-
-# TODO Testes ci-dessous, algo fonctionne
 
 main_menu()
