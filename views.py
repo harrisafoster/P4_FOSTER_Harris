@@ -1,7 +1,5 @@
 def when_finished():
-    print("When you're finished, "
-          "press q to return to the main menu "
-          "or press b to return to the previous menu.")
+    print("When you're finished, press q to return to the main menu or press b to return to the previous menu.")
 # 'print' of options after a menu option has been exhausted
 
 

@@ -34,19 +34,16 @@ def get_new_player_data():
         else:
             ranking = int(ranking)
             break
-    Player('players.json').create_player(email, last_name, first_name,
-                                         date_of_birth, sex, ranking)
+    Player('players.json').create_player(email, last_name, first_name, date_of_birth, sex, ranking)
 # Gets player data from the user, creates a new player in the database.
 
 
 def get_new_tournament_data():
-    name_of_tournament = str(input('Enter name of tournament: ')
-                             + ' ' + str(datetime.date.today()))
+    name_of_tournament = str(input('Enter name of tournament: ') + ' ' + str(datetime.date.today()))
     location = input('Enter location of tournament: ')
     while True:
         try:
-            nb_rounds = int(input(
-                'Enter number of rounds (default set to 4): '))
+            nb_rounds = int(input('Enter number of rounds (default set to 4): '))
         except ValueError:
             print('Set to default round count (4)')
             nb_rounds = 4
@@ -54,8 +51,7 @@ def get_new_tournament_data():
         else:
             break
     while True:
-        nb_players = input(
-            'Enter how many players are playing in this tournament: ')
+        nb_players = input('Enter how many players are playing in this tournament: ')
         try:
             int(nb_players)
         except ValueError:
@@ -64,8 +60,7 @@ def get_new_tournament_data():
         else:
             nb_players = int(nb_players)
             break
-    views.show_list('Players currently in the database are: ',
-                    Player('players.json').read_player_list())
+    views.show_list('Players currently in the database are: ', Player('players.json').read_player_list())
     player_emails = []
     while len(player_emails) < nb_players:
         while True:
@@ -79,22 +74,18 @@ def get_new_tournament_data():
                 print('You have already added this user to the tournament.')
                 continue
             if email not in Player('players.json').get_player_emails():
-                add_new_player = input('This email address matches '
-                                       'no saved users, '
-                                       'add a new user with this email? '
-                                       '(y/n): ')
+                add_new_player = input('This email address matches no saved users, '
+                                       'add a new user with this email? (y/n): ')
                 if add_new_player == 'y':
                     get_new_player_data()
                     player_emails.append(
-                        Player('players.json').read_one_player(
-                            email)[0]['email'])
+                        Player('players.json').read_one_player(email)[0]['email'])
                 continue
             else:
                 player_emails.append(email)
                 break
     while True:
-        time_ctrl = input(
-            "Type of time control (Bullet, Blitz, ou Coup Rapide): ")
+        time_ctrl = input("Type of time control (Bullet, Blitz, ou Coup Rapide): ")
         try:
             assert time_ctrl in ["Bullet", "Blitz", "Coup Rapide"]
         except AssertionError:
@@ -103,12 +94,9 @@ def get_new_tournament_data():
         else:
             break
     description = input('Enter the description of the tournament: ')
-    Tournament('tournaments.json').create_tournament(name_of_tournament,
-                                                     location, nb_rounds,
-                                                     player_emails, time_ctrl,
-                                                     description)
-    current_tournament = Tournament('tournaments.json'). \
-        access_tournament_object(name_of_tournament)
+    Tournament('tournaments.json').create_tournament(name_of_tournament, location, nb_rounds,
+                                                     player_emails, time_ctrl, description)
+    current_tournament = Tournament('tournaments.json').access_tournament_object(name_of_tournament)
     current_tournament.populate_player_instances()
     return current_tournament.name_of_tournament
 # Gets tournament data from the user, creates a new tournament in the database.
@@ -125,8 +113,7 @@ def start_round(current_tournament, round_number):
             current_round = Round('tournaments.json').create_round(
                 round_number, current_tournament)
             return current_round
-# Asks the user to confirm the start of the round,
-# generates a round object (start_time auto-generated).
+# Asks the user to confirm the start of the round, generates a round object (start_time auto-generated).
 
 
 def end_round(current_tournament, current_round):
@@ -138,9 +125,7 @@ def end_round(current_tournament, current_round):
             print('Please press the indicated key to end the round.')
         else:
             while True:
-                duration = input(
-                    'How long did the round last? '
-                    '(number of hours only in decimal form, ex. 1.5)')
+                duration = input('How long did the round last? (number of hours only in decimal form, ex. 1.5)')
                 try:
                     float(duration)
                 except ValueError:
@@ -149,13 +134,10 @@ def end_round(current_tournament, current_round):
                 else:
                     duration = float(duration)
                     break
-            end_of_round = current_round.start_of_round + datetime. \
-                timedelta(hours=duration)
+            end_of_round = current_round.start_of_round + datetime.timedelta(hours=duration)
             current_round.end_of_round = end_of_round.strftime("%H:%M:%S")
-            current_round.start_of_round = current_round. \
-                start_of_round.strftime("%H:%M:%S")
-            current_tournament.round_instances \
-                += [current_round.serialize_round()]
+            current_round.start_of_round = current_round.start_of_round.strftime("%H:%M:%S")
+            current_tournament.round_instances += [current_round.serialize_round()]
             current_tournament.update_round_instances()
             print('Current round ended: ' + current_round.end_of_round)
             break
@@ -166,17 +148,13 @@ def end_round(current_tournament, current_round):
 def end_match(current_tournament, current_round, current_match):
     while True:
         try:
-            end_current_match = str(input(
-                'Press y to enter the match duration: '))
+            end_current_match = str(input('Press y to enter the match duration: '))
             assert end_current_match == 'y'
         except AssertionError:
-            print('Please press the indicated key '
-                  'to enter the match duration. ')
+            print('Please press the indicated key to enter the match duration. ')
         else:
             while True:
-                duration = input('How long did the match last? '
-                                 '(number of hours only in decimal form, '
-                                 'ex. 1.5)')
+                duration = input('How long did the match last? (number of hours only in decimal form, ex. 1.5)')
                 try:
                     float(duration)
                 except ValueError:
@@ -185,13 +163,10 @@ def end_match(current_tournament, current_round, current_match):
                 else:
                     duration = float(duration)
                     break
-            end_of_match = current_round.start_of_round + datetime. \
-                timedelta(hours=duration)
+            end_of_match = current_round.start_of_round + datetime.timedelta(hours=duration)
             current_match.end_of_match = end_of_match.strftime("%H:%M:%S")
-            current_match.start_of_match = current_round.start_of_round. \
-                strftime("%H:%M:%S")
-            current_tournament.match_instances += \
-                [current_match.serialize_match()]
+            current_match.start_of_match = current_round.start_of_round.strftime("%H:%M:%S")
+            current_tournament.match_instances += [current_match.serialize_match()]
             current_tournament.update_match_instances()
             print('Current match ended: ' + current_match.end_of_match)
             break
@@ -201,13 +176,11 @@ def end_match(current_tournament, current_round, current_match):
 
 def point_counter(current_tournament, round_number):
     current_round = start_round(current_tournament, round_number)
-    current_round_matches = \
-        current_tournament.round_descriptions[round_number - 1]
+    current_round_matches = current_tournament.round_descriptions[round_number - 1]
     match_number = 0
     for match in current_round_matches:
         while True:
-            winner = input(
-                f"Winner? Player {match[0]} or Player {match[1]}, or Draw: ")
+            winner = input(f"Winner? Player {match[0]} or Player {match[1]}, or Draw: ")
             try:
                 assert winner in [str(match[0]), str(match[1]), 'Draw', 'draw']
             except AssertionError:
@@ -244,22 +217,17 @@ def point_counter(current_tournament, round_number):
                             player_instance['points'] += 1
                 break
         match_number += 1
-        current_match = Match('tournaments.json').create_match(round_number,
-                                                               match_number,
-                                                               winner,
-                                                               current_round)
+        current_match = Match('tournaments.json').create_match(round_number, match_number, winner, current_round)
         end_match(current_tournament, current_round, current_match)
     end_round(current_tournament, current_round)
-    current_tournament.update_player_instances(current_tournament.
-                                               player_instances)
+    current_tournament.update_player_instances(current_tournament.player_instances)
 # Asks user for the winner of each match for specified round,
 # manages/generates match/round objects,
 # updates database/objects with new info.
 
 
 def local_player_report_by_last_name(chosen_tournament):
-    views.show_list('Players sorted by last name',
-                    chosen_tournament.sort_players_by_last_name())
+    views.show_list('Players sorted by last name', chosen_tournament.sort_players_by_last_name())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -270,8 +238,7 @@ def local_player_report_by_last_name(chosen_tournament):
 
 
 def local_player_report_by_relative_ranking(chosen_tournament):
-    views.show_list('Players sorted by rank: ',
-                    chosen_tournament.sort_players_by_local_index())
+    views.show_list('Players sorted by rank: ', chosen_tournament.sort_players_by_local_index())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -283,8 +250,7 @@ def local_player_report_by_relative_ranking(chosen_tournament):
 
 
 def local_player_report_by_points(chosen_tournament):
-    views.show_list('Players sorted by points: ',
-                    chosen_tournament.sort_players_by_points_descending())
+    views.show_list('Players sorted by points: ', chosen_tournament.sort_players_by_points_descending())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -296,9 +262,7 @@ def local_player_report_by_points(chosen_tournament):
 
 
 def local_round_report(chosen_tournament):
-    views.show_list('All rounds: ',
-                    Round('tournaments.json')
-                    .read_all_rounds(chosen_tournament))
+    views.show_list('All rounds: ', Round('tournaments.json').read_all_rounds(chosen_tournament))
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -309,9 +273,7 @@ def local_round_report(chosen_tournament):
 
 
 def local_match_report(chosen_tournament):
-    views.show_list('All matches: ',
-                    Match('tournaments.json')
-                    .read_all_matches(chosen_tournament))
+    views.show_list('All matches: ', Match('tournaments.json').read_all_matches(chosen_tournament))
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -322,8 +284,7 @@ def local_match_report(chosen_tournament):
 
 
 def choose_and_access_tournament_for_report():
-    views.show_all_tournament_names_and_dates(Tournament('tournaments.json')
-                                              .read_all_tournaments())
+    views.show_all_tournament_names_and_dates(Tournament('tournaments.json').read_all_tournaments())
     if len(Tournament('tournaments.json').read_all_tournaments()) == 0:
         print("There are no currently saved tournaments.")
         views.when_finished()
@@ -333,19 +294,15 @@ def choose_and_access_tournament_for_report():
     else:
         while True:
             choice = input(
-                'On which tournament would you like a report? '
-                '(name and date only, format: Name yyyy-mm-dd)')
+                'On which tournament would you like a report? (name and date only, format: Name yyyy-mm-dd)')
             try:
-                assert choice in Tournament('tournaments.json') \
-                    .get_tournament_names()
+                assert choice in Tournament('tournaments.json').get_tournament_names()
             except AssertionError:
-                print("Sorry, you need to choose "
-                      "one of the available options.")
+                print("Sorry, you need to choose one of the available options.")
                 continue
             else:
                 break
-        chosen_tournament = Tournament('tournaments.json') \
-            .access_tournament_object(choice)
+        chosen_tournament = Tournament('tournaments.json').access_tournament_object(choice)
     return chosen_tournament
 # shows available tournaments,
 # asks user to select one of the available options,
@@ -387,8 +344,7 @@ def report_menu_local_reports():
 
 
 def global_report_players_by_last_name():
-    views.show_list('Players sorted by last name',
-                    Player('players.json').sort_all_players_by_last_name())
+    views.show_list('Players sorted by last name', Player('players.json').sort_all_players_by_last_name())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -399,8 +355,7 @@ def global_report_players_by_last_name():
 
 
 def global_report_players_by_ranking():
-    views.show_list('Players by ranking: ',
-                    Player('players.json').sort_all_players_by_ranking())
+    views.show_list('Players by ranking: ', Player('players.json').sort_all_players_by_ranking())
     views.when_finished()
     all_done = input()
     if all_done == 'q':
@@ -497,12 +452,10 @@ def main_report_menu():
 
 
 def add_players():
-    players_to_add = input(
-        'Would you like to add any players to the database? (y/n)')
+    players_to_add = input('Would you like to add any players to the database? (y/n)')
     if players_to_add == 'y':
         while True:
-            number_of_players_to_add = input(
-                'How many players would you like to add? (numbers only)')
+            number_of_players_to_add = input('How many players would you like to add? (numbers only)')
             try:
                 int(number_of_players_to_add)
             except ValueError:
@@ -540,8 +493,7 @@ def update_player():
             except AssertionError:
                 print('Sorry, you need to enter an email address '
                       'that is currently present in the database.')
-                views.show_list(None, Player('players.json').
-                                read_player_list())
+                views.show_list(None, Player('players.json').read_player_list())
                 continue
             else:
                 views.show_one_player(Player('players.json'), email)
@@ -549,19 +501,15 @@ def update_player():
         views.show_modifiable_fields()
         fields_to_edit = input()
         if '1' in fields_to_edit:
-            last_name = input(
-                "Enter the player's modified last name: ").upper()
+            last_name = input("Enter the player's modified last name: ").upper()
         else:
             last_name = None
         if '2' in fields_to_edit:
-            first_name = input(
-                "Enter the player's modified first name: ").capitalize()
+            first_name = input("Enter the player's modified first name: ").capitalize()
         else:
             first_name = None
         if '3' in fields_to_edit:
-            date_of_birth = input(
-                "Enter the player's modified "
-                "date of birth (format dd/mm/yyyy): ")
+            date_of_birth = input("Enter the player's modified date of birth (format dd/mm/yyyy): ")
         else:
             date_of_birth = None
         if '4' in fields_to_edit:
@@ -576,9 +524,7 @@ def update_player():
             new_email = input("Enter the player's modified email address: ")
         else:
             new_email = None
-        Player('players.json').update_player(email, last_name, first_name,
-                                             date_of_birth, sex, ranking,
-                                             new_email)
+        Player('players.json').update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
         print('Player edited successfully.')
     else:
         print("There aren't any players saved in the database.")
@@ -594,13 +540,11 @@ def update_player():
 
 def delete_player():
     while True:
-        choice = str(input(
-            'Which player would you like to delete? (email address only)'))
+        choice = str(input('Which player would you like to delete? (email address only)'))
         try:
             assert choice in Player('players.json').get_player_emails()
         except AssertionError:
-            print('Please enter an email address '
-                  'that is present in the database')
+            print('Please enter an email address that is present in the database')
             continue
         else:
             Player('players.json').delete_player(choice)
@@ -620,8 +564,7 @@ def update_all_rankings():
     for item in Player('players.json').read_player_list():
         print(item)
         while True:
-            new_ranking = input(
-                "What is the player's new ranking? (numbers only)")
+            new_ranking = input("What is the player's new ranking? (numbers only)")
             try:
                 int(new_ranking)
             except ValueError:
@@ -631,9 +574,7 @@ def update_all_rankings():
                 new_ranking = int(new_ranking)
                 break
         Player('players.json').db_players.update({'ranking': new_ranking},
-                                                 Player('players.json')
-                                                 .query["email"]
-                                                 == item['email'])
+                                                 Player('players.json').query["email"] == item['email'])
     views.show_list('New list of all players sorted by rank: ',
                     Player('players.json').sort_all_players_by_ranking())
     views.when_finished()
@@ -700,10 +641,8 @@ def execute_tournament(tournament):
     if tournament.done:
         print('This tournament has already ended.')
         pass
-    views.show_list(
-        'Players present in this tournament '
-        'are (local index numbers used for pairings): ',
-        tournament.player_instances)
+    views.show_list('Players present in this tournament are (local index numbers used for pairings): ',
+                    tournament.player_instances)
     if not tournament.done:
         if not tournament.round_descriptions:
             tournament.generate_round_1_matches()
@@ -711,10 +650,8 @@ def execute_tournament(tournament):
             if len(tournament.round_descriptions) < tournament.nb_rounds:
                 if not continue_tournament():
                     break
-                views.show_list("This round's matches are "
-                                "(by local index numbers): ",
-                                tournament.round_descriptions
-                                [len(tournament.round_descriptions) - 1])
+                views.show_list("This round's matches are (by local index numbers): ",
+                                tournament.round_descriptions[len(tournament.round_descriptions) - 1])
                 point_counter(tournament, len(tournament.round_descriptions))
                 tournament.swiss_method_pairing()
             if len(tournament.round_descriptions) == tournament.nb_rounds:
@@ -734,8 +671,7 @@ def execute_tournament(tournament):
 def resume_tournament():
     proceed = input('Proceed with resuming a tournament? (y/n): ')
     if proceed == 'y':
-        views.show_all_tournament_names_and_dates(
-            Tournament('tournaments.json').db_tournaments.all())
+        views.show_all_tournament_names_and_dates(Tournament('tournaments.json').db_tournaments.all())
         if len(Tournament('tournaments.json').db_tournaments.all()) == 0:
             print("There are no currently saved tournaments.")
             views.when_finished()
@@ -750,16 +686,13 @@ def resume_tournament():
                     'Which tournament would you like to resume? '
                     '(name and date only, format: Name yyyy-mm-dd)')
                 try:
-                    assert choice in Tournament('tournaments.json')\
-                        .get_tournament_names()
+                    assert choice in Tournament('tournaments.json').get_tournament_names()
                 except AssertionError:
-                    print("Sorry, you need to choose "
-                          "one of the available options.")
+                    print("Sorry, you need to choose one of the available options.")
                     continue
                 else:
                     break
-            current_tournament = Tournament('tournaments.json')\
-                .access_tournament_object(choice)
+            current_tournament = Tournament('tournaments.json').access_tournament_object(choice)
             execute_tournament(current_tournament)
             views.when_finished()
             all_done = input()
@@ -776,8 +709,7 @@ def resume_tournament():
 def create_and_start_tournament():
     proceed = input('Proceed with creating and starting a tournament? (y/n): ')
     if proceed == 'y':
-        current_tournament = Tournament('tournaments.json')\
-            .access_tournament_object(get_new_tournament_data())
+        current_tournament = Tournament('tournaments.json').access_tournament_object(get_new_tournament_data())
         execute_tournament(current_tournament)
         views.when_finished()
         all_done = input()
