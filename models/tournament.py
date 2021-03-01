@@ -3,7 +3,7 @@ import datetime
 import itertools
 import operator
 from random import shuffle
-from player import Player
+from models.player import Player
 
 
 class Tournament:
@@ -41,6 +41,7 @@ class Tournament:
             "match_instances": self.match_instances
         }
         return tournament_data
+    # creation of dict from self for use in database
 
     def create_tournament(self, name_of_tournament, location, nb_rounds, player_emails, time_ctrl, description):
         self.name_of_tournament = name_of_tournament
@@ -57,6 +58,7 @@ class Tournament:
         self.round_instances = []
         self.match_instances = []
         self.db_tournaments.insert(self.serialize_tournament())
+    # creation of object and database instance from specified data
 
     def access_tournament_object(self, name_of_tournament):
         tournament_instance = self.db_tournaments.search(self.query['name_of_tournament'] ==
@@ -75,6 +77,7 @@ class Tournament:
         self.round_instances = tournament_instance[0]['round_instances']
         self.match_instances = tournament_instance[0]['match_instances']
         return self
+    # creates and accesses a tournament object created from database entry
 
     def get_tournament_names(self):
         tournament_names = []
@@ -114,6 +117,7 @@ class Tournament:
     def update_done_status(self):
         self.db_tournaments.update({'done': self.done},
                                    self.query['name_of_tournament'] == self.name_of_tournament)
+    # done status used to indicate whether the tournament has ended
 
     def get_local_player_index_numbers(self):
         local_player_index_numbers = []
@@ -131,18 +135,22 @@ class Tournament:
         self.player_instances.sort(key=operator.itemgetter('local_player_index'))
         self.player_instances.sort(key=operator.itemgetter('points'), reverse=True)
         return self.player_instances
+    # player instances refers to the local player entry within the tournament entry
 
     def sort_players_by_local_index(self):
         self.player_instances.sort(key=operator.itemgetter('local_player_index'))
         return self.player_instances
+    # player instances refers to the local player entry within the tournament entry
 
     def sort_players_by_last_name(self):
         self.player_instances.sort(key=operator.itemgetter('last_name'))
         return self.player_instances
+    # player instances refers to the local player entry within the tournament entry
 
     def sort_players_by_points_ascending(self):
         self.player_instances.sort(key=operator.itemgetter('local_player_index'))
         self.player_instances.sort(key=operator.itemgetter('points'))
+    # player instances refers to the local player entry within the tournament entry
 
     def generate_round_1_matches(self):
         nb_players = len(self.player_instances)
@@ -210,6 +218,8 @@ class Tournament:
                                'current_ranking': player_instance['ranking']}
             filtered_player_instances.append(filtered_player)
         self.update_player_instances(filtered_player_instances)
+    # creates local player instances within the tournament object/database entry for use
+    # while running the tournament. Ex. keeping track of points.
 
     def delete_round(self, round_number):
         del self.round_descriptions[round_number-1]
