@@ -110,3 +110,11 @@ def show_tournament_management_options():
           "\n (2) Resume a tournament that has already begun"
           "\n (3) Return to the main menu"
           "\n Input(number of choice only): ")
+
+
+def show_players_in_current_match(tournament, local_player_index_1, local_player_index_2):
+    for player in tournament.player_instances:
+        if player['local_player_index'] == local_player_index_1:
+            print(player)
+        if player['local_player_index'] == local_player_index_2:
+            print(player)
