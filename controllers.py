@@ -194,6 +194,7 @@ def point_counter(current_tournament, round_number):
     current_round_matches = current_tournament.round_descriptions[round_number - 1]
     match_number = 0
     for match in current_round_matches:
+        views.show_players_in_current_match(current_tournament, match[0], match[1])
         while True:
             winner = input(f"Winner? Player {match[0]} or Player {match[1]}, or Draw: ")
             try:
@@ -672,6 +673,8 @@ def execute_tournament(tournament):
             if len(tournament.round_descriptions) == tournament.nb_rounds:
                 if not continue_tournament():
                     break
+                views.show_list("This round's matches are (by local index numbers): ",
+                                tournament.round_descriptions[len(tournament.round_descriptions) - 1])
                 point_counter(tournament, len(tournament.round_descriptions))
                 tournament.done = True
                 tournament.end_date = str(datetime.date.today())
