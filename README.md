@@ -50,10 +50,10 @@ $ python tournament_manager.py
 
 Dès que le logiciel est lancé, vous pouvez naviguer les menus principaux 
 pour effecteur vos tournois et rapports à l'aide de votre clavier. 
-Il est utile de préciser que vous pouvez modifier les classements des joueurs dans la base de données
-à la fin de chaque tour. Il suffit de sauvegarder votre progrès quand le logiciel vous demande 
-si vous voulez continuer, et puis naviguer dans le menu edit/add_players pour effectuer les changements
-de classement.
+Il est utile de préciser que vous pouvez sauvegarder votre progrès et modifier les classements des joueurs 
+dans la base de données SEULEMENT à la fin de chaque tour. Il suffit de sauvegarder votre progrès quand 
+le logiciel vous demande si vous voulez continuer, et puis naviguer dans le menu edit/add_players pour 
+effectuer les changements de classement.
 
 ## Built with
 Python 3.9
