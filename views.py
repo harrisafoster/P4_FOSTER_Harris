@@ -42,7 +42,7 @@ def show_main_menu_choices():
     print('Would you like to '
           '\n (1) Generate a report'
           '\n (2) Edit/add players'
-          '\n (3) Begin/resume a tournament'
+          '\n (3) Begin/resume/manage a tournament'
           '\n (4) Exit this program'
           '\n Input(number of choice only): ')
 
@@ -108,7 +108,8 @@ def show_tournament_management_options():
     print("Would you like to: "
           "\n (1) Create and start a tournament"
           "\n (2) Resume a tournament that has already begun"
-          "\n (3) Return to the main menu"
+          "\n (3) Delete a tournament from the database"
+          "\n (4) Return to the main menu"
           "\n Input(number of choice only): ")
 
 

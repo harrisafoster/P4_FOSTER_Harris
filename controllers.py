@@ -670,14 +670,16 @@ def execute_tournament(tournament):
             if len(tournament.round_descriptions) < tournament.nb_rounds:
                 if not continue_tournament():
                     break
-                views.show_list("This round's matches are (by local index numbers): ",
+                views.show_list("Round " + str(len(tournament.round_descriptions))
+                                + "'s matches are (by local index numbers): ",
                                 tournament.round_descriptions[len(tournament.round_descriptions) - 1])
                 point_counter(tournament, len(tournament.round_descriptions))
                 tournament.swiss_method_pairing()
             if len(tournament.round_descriptions) == tournament.nb_rounds:
                 if not continue_tournament():
                     break
-                views.show_list("This round's matches are (by local index numbers): ",
+                views.show_list("Round " + str(len(tournament.round_descriptions))
+                                + "'s matches are (by local index numbers): ",
                                 tournament.round_descriptions[len(tournament.round_descriptions) - 1])
                 point_counter(tournament, len(tournament.round_descriptions))
                 tournament.done = True
@@ -688,6 +690,42 @@ def execute_tournament(tournament):
                 break
 # runs the specified tournament from its current state until its end
 # unless the user elects to save progress.
+
+
+def delete_tournament():
+    proceed = input('Proceed with deleting a tournament? (y/n): ')
+    if proceed == 'y':
+        views.show_all_tournament_names_and_dates(Tournament('tournaments.json').db_tournaments.all())
+        if len(Tournament('tournaments.json').db_tournaments.all()) == 0:
+            print("There are no currently saved tournaments.")
+            views.when_finished()
+            all_done = input()
+            if all_done == 'q':
+                main_menu()
+            else:
+                tournament_management_menu()
+        else:
+            while True:
+                choice = input(
+                    'Which tournament would you like to resume? '
+                    '(name and date only, format: Name yyyy-mm-dd)')
+                try:
+                    assert choice in Tournament('tournaments.json').get_tournament_names()
+                except AssertionError:
+                    print("Sorry, you need to choose one of the available options.")
+                    continue
+                else:
+                    break
+            Tournament('tournaments.json').delete_tournament(choice)
+            print('Tournament ' + choice + ' deleted.')
+            views.when_finished()
+            all_done = input()
+            if all_done == 'q':
+                main_menu()
+            else:
+                tournament_management_menu()
+    if proceed != 'y':
+        tournament_management_menu()
 
 
 def resume_tournament():
@@ -754,7 +792,7 @@ def tournament_management_menu():
         except ValueError:
             print("Sorry, I didn't understand that.")
             continue
-        if int(choice) not in range(4) or int(choice) == 0:
+        if int(choice) not in range(5) or int(choice) == 0:
             print("Sorry, you need to select one of the available options.")
             continue
         else:
@@ -765,8 +803,10 @@ def tournament_management_menu():
     if choice == 2:
         resume_tournament()
     if choice == 3:
+        delete_tournament()
+    if choice == 4:
         main_menu()
-# main menu for creating/selecting/and resuming tournaments
+# main menu for creating/selecting/deleting/resuming tournaments
 
 
 def main_menu():
