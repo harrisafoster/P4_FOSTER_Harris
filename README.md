@@ -50,6 +50,14 @@ $ python tournament_manager.py
 
 Dès que le logiciel est lancé, vous pouvez naviguer les menus principaux 
 pour effecteur vos tournois et rapports à l'aide de votre clavier. 
+
+Quand vous commencez un tournoi, sa date de début est renseignée automatiquement par le logiciel et la 
+même chose se passe quand vous terminez un tournoi avec sa date de fin. Similairement, quand vous confirmez 
+que vous commencez un tour (round), sa date et heure de début sont sauvegardées automatiquement. Quant à la 
+fin de chaque tour, la date et heures sont automatiquement sauvegardées selon la durée que vous renseignez à la 
+fin de chaque tour. Il est donc impératif de confirmer le début d'un tour au moment où il commence et de renseigner 
+une durée exacte. 
+
 Il est utile de préciser que vous pouvez sauvegarder votre progrès et modifier les classements des joueurs 
 dans la base de données SEULEMENT à la fin de chaque tour. Il suffit de sauvegarder votre progrès quand 
 le logiciel vous demande si vous voulez continuer, et puis naviguer dans le menu edit/add_players pour 

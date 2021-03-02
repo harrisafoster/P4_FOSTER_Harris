@@ -35,6 +35,7 @@ def get_new_player_data():
             ranking = int(ranking)
             break
     Player('players.json').create_player(email, last_name, first_name, date_of_birth, sex, ranking)
+    return email
 # Gets player data from the user, creates a new player in the database.
 
 
@@ -61,7 +62,11 @@ def get_new_tournament_data():
             nb_players = int(nb_players)
             break
     views.show_list('Players currently in the database are: ', Player('players.json').read_player_list())
-    players_to_add = input('Would you like to add any players to the database? (y/n)')
+    clear_player_database = input('Would you like to clear the player database? (y/n) ')
+    if clear_player_database == 'y':
+        Player('players.json').delete_all_players()
+    players_to_add = input('Would you like to add any players to the database? (y/n) ')
+    player_emails = []
     if players_to_add == 'y':
         while True:
             number_of_players_to_add = input('How many players would you like to add? (numbers only)')
@@ -74,10 +79,9 @@ def get_new_tournament_data():
                 number_of_players_to_add = int(number_of_players_to_add)
                 break
         for x in range(int(number_of_players_to_add)):
-            get_new_player_data()
-    player_emails = []
-    print('Please enter the email addresses of the players that are participating in this tournament.')
+            player_emails.append(get_new_player_data())
     while len(player_emails) < nb_players:
+        print('Please enter the email addresses of the players that are participating in this tournament.')
         while True:
             try:
                 email = input("Enter player's email address: ")

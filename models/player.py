@@ -67,6 +67,9 @@ class Player:
     def delete_player(self, email):
         self.db_players.remove(where('email') == email)
 
+    def delete_all_players(self):
+        self.db_players.truncate()
+
     def sort_all_players_by_ranking(self):
         list_of_players = self.db_players.all()
         list_of_players.sort(key=operator.itemgetter('ranking'))
