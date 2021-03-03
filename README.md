@@ -59,7 +59,7 @@ fin de chaque tour. Il est donc impératif de confirmer le début d'un tour au m
 une durée exacte. 
 
 Il est utile de préciser que vous pouvez sauvegarder votre progrès et modifier les classements des joueurs 
-dans la base de données SEULEMENT à la fin de chaque tour. Il suffit de sauvegarder votre progrès quand 
+dans la base de données à la fin de chaque tour ou à la fin de chaque match. Il suffit de sauvegarder votre progrès quand 
 le logiciel vous demande si vous voulez continuer, et puis naviguer dans le menu edit/add_players pour 
 effectuer les changements de classement.
 

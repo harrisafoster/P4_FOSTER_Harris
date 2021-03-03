@@ -80,8 +80,8 @@ def get_new_tournament_data():
                 break
         for x in range(int(number_of_players_to_add)):
             player_emails.append(get_new_player_data())
+    print('Please enter the email addresses of the players that are participating in this tournament.')
     while len(player_emails) < nb_players:
-        print('Please enter the email addresses of the players that are participating in this tournament.')
         while True:
             try:
                 email = input("Enter player's email address: ")
@@ -135,7 +135,7 @@ def start_round(current_tournament, round_number):
 # Asks the user to confirm the start of the round, generates a round object (start_time auto-generated).
 
 
-def end_round(current_tournament, current_round):
+def end_round(current_tournament, current_round, round_number):
     while True:
         try:
             end_current_round = str(input('Press y to end the round: '))
@@ -155,10 +155,11 @@ def end_round(current_tournament, current_round):
                     break
             end_of_round = current_round.start_of_round + datetime.timedelta(hours=duration)
             current_round.end_of_round = end_of_round.strftime("%H:%M:%S")
-            current_round.start_of_round = current_round.start_of_round.strftime("%H:%M:%S")
-            current_tournament.round_instances += [current_round.serialize_round()]
+            current_tournament.round_instances[round_number-1] = current_round.serialize_round()
             current_tournament.update_round_instances()
-            print('Current round ended: ' + current_round.end_of_round)
+            current_tournament.nb_finished_matches_of_round = 0
+            current_tournament.save_nb_finished_matches_of_round()
+            print('Round ' + str(round_number) + ' ended: ' + current_round.end_of_round)
             break
 # Asks the user to confirm the end of the round, gets total duration,
 # completes round object with new info, updates database
@@ -194,11 +195,32 @@ def end_match(current_tournament, current_round, current_match):
 
 
 def point_counter(current_tournament, round_number):
-    current_round = start_round(current_tournament, round_number)
-    current_round_matches = current_tournament.round_descriptions[round_number - 1]
-    match_number = 0
+    if len(current_tournament.round_instances) < round_number:
+        current_round = start_round(current_tournament, round_number)
+        current_tournament.round_instances += [current_round.serialize_round()]
+        current_tournament.update_round_instances()
+    if not current_tournament.round_instances:
+        current_round = start_round(current_tournament, round_number)
+    elif current_tournament.round_instances[round_number-1]:
+        current_round = Round('tournaments.json').access_round_object(round_number, current_tournament)
+    match_number = current_tournament.nb_finished_matches_of_round
+    current_round_matches = current_tournament.round_descriptions[round_number - 1][match_number:]
     for match in current_round_matches:
         views.show_players_in_current_match(current_tournament, match[0], match[1])
+        proceed = input('(1) Declare winner or '
+                        '\n(2) Save & quit tournament?'
+                        '\n Input: ')
+        if proceed == '2':
+            if not current_tournament.round_instances:
+                current_tournament.round_instances += [current_round.serialize_round()]
+                current_tournament.update_round_instances()
+            elif current_tournament.round_instances[round_number-1]:
+                current_tournament.round_instances[round_number-1] = current_round.serialize_round()
+                current_tournament.update_round_instances()
+            else:
+                current_tournament.round_instances += [current_round.serialize_round()]
+                current_tournament.update_round_instances()
+            main_menu()
         while True:
             winner = input(f"Winner? Player {match[0]} or Player {match[1]}, or Draw: ")
             try:
@@ -239,8 +261,10 @@ def point_counter(current_tournament, round_number):
         match_number += 1
         current_match = Match('tournaments.json').create_match(round_number, match_number, winner, current_round)
         end_match(current_tournament, current_round, current_match)
-    end_round(current_tournament, current_round)
-    current_tournament.update_player_instances(current_tournament.player_instances)
+        current_tournament.nb_finished_matches_of_round = match_number
+        current_tournament.save_nb_finished_matches_of_round()
+        current_tournament.update_player_instances(current_tournament.player_instances)
+    end_round(current_tournament, current_round, round_number)
 # Asks user for the winner of each match for specified round,
 # manages/generates match/round objects,
 # updates database/objects with new info.

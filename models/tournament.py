@@ -23,6 +23,7 @@ class Tournament:
         self.done = None
         self.round_instances = []
         self.match_instances = []
+        self.nb_finished_matches_of_round = 0
 
     def serialize_tournament(self):
         tournament_data = {
@@ -38,7 +39,8 @@ class Tournament:
             "description": self.description,
             "done": self.done,
             "round_instances": self.round_instances,
-            "match_instances": self.match_instances
+            "match_instances": self.match_instances,
+            "nb_finished_matches_of_round": self.nb_finished_matches_of_round
         }
         return tournament_data
     # creation of dict from self for use in database
@@ -75,6 +77,7 @@ class Tournament:
         self.done = tournament_instance[0]['done']
         self.round_instances = tournament_instance[0]['round_instances']
         self.match_instances = tournament_instance[0]['match_instances']
+        self.nb_finished_matches_of_round = tournament_instance[0]['nb_finished_matches_of_round']
         return self
     # creates and accesses a tournament object created from database entry
 
@@ -117,6 +120,11 @@ class Tournament:
         self.db_tournaments.update({'done': self.done},
                                    self.query['name_of_tournament'] == self.name_of_tournament)
     # done status used to indicate whether the tournament has ended
+
+    def save_nb_finished_matches_of_round(self):
+        self.db_tournaments.update({'nb_finished_matches_of_round': self.nb_finished_matches_of_round},
+                                   self.query['name_of_tournament'] == self.name_of_tournament)
+    # used to allow pausing and resuming of a round in progress
 
     def get_local_player_index_numbers(self):
         local_player_index_numbers = []
@@ -161,6 +169,7 @@ class Tournament:
         for local_player_index in top_half:
             round_matches.append((local_player_index, bottom_half[local_player_index - 1]))
         self.round_descriptions = [round_matches, ]
+        self.update_round_descriptions()
 
     def make_new_matches_for_swiss(self, local_player_index_numbers):
         matches = []
