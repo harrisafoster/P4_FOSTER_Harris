@@ -68,5 +68,8 @@ dans la base de données à la fin de chaque tour ou à la fin de chaque match. 
 le logiciel vous demande si vous voulez continuer, et puis naviguer dans le menu edit/add_players pour 
 effectuer les changements de classement.
 
+Pour montrer les résultats d'un tournoi, il suffit d'aller dans les menus des "local reports" et spécifier quel rapport
+vous souhaitez montrer. 
+
 ## Built with
 Python 3.9
