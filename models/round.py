@@ -25,6 +25,7 @@ class Round:
             "time_ctrl": self.time_ctrl
         }
         return round_data
+
     # creation of dict from self for use in database
 
     def create_round(self, round_number, tournament):
@@ -36,18 +37,20 @@ class Round:
         self.matches = tournament.round_descriptions[round_number - 1]
         self.time_ctrl = tournament.time_ctrl
         return self
+
     # creation of round object for use in tournaments
 
     def access_round_object(self, round_number, tournament):
-        self.name_of_tournament = tournament.round_instances[round_number-1]['name_of_tournament']
-        self.round_number = tournament.round_instances[round_number-1]['round_number']
-        self.date = tournament.round_instances[round_number-1]['date']
-        self.start_of_round = datetime.datetime.strptime(tournament.round_instances[round_number - 1]['start_of_round']
-                                                         , '%H:%M:%S')
-        self.end_of_round = tournament.round_instances[round_number-1]['end_of_round']
-        self.matches = tournament.round_instances[round_number-1]['matches']
-        self.time_ctrl = tournament.round_instances[round_number-1]['time_ctrl']
+        self.name_of_tournament = tournament.round_instances[round_number - 1]['name_of_tournament']
+        self.round_number = tournament.round_instances[round_number - 1]['round_number']
+        self.date = tournament.round_instances[round_number - 1]['date']
+        self.start_of_round = datetime.datetime.strptime(
+            tournament.round_instances[round_number - 1]['start_of_round'], '%H:%M:%S')
+        self.end_of_round = tournament.round_instances[round_number - 1]['end_of_round']
+        self.matches = tournament.round_instances[round_number - 1]['matches']
+        self.time_ctrl = tournament.round_instances[round_number - 1]['time_ctrl']
         return self
+
     # accesses a paused round
 
     def read_one_round(self, round_number, tournament):

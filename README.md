@@ -10,16 +10,21 @@ Ce gestionnaire de tournois multifonction d'échecs peut :
 3. Générer des rapports sur tous vos tournois et joueurs
 
 ## Installation
-### Pour les développeurs et utilisateurs (windows 10) :
-#### Clonez la source localement :
+### Pour les développeurs et utilisateurs (windows 10, mac, linux) :
+#### Clonez la source localement (en utilisant Git Bash) :
 ```sh
 $ git clone https://github.com/harrisafoster/P4_FOSTER_Harris
 $ cd P4_Foster_Harris
 ```
-#### Créer et activer un environnement virtuel avec :
+#### Créer et activer un environnement virtuel avec (windows 10) :
 ```sh
 $ python -m venv env
 $ source ./env/Scripts/activate
+```
+#### Créer et activer un environnement virtuel avec (mac & linux) :
+```sh
+$ virtualenv venv
+$ source venv/bin/activate
 ```
 #### Et installez les packages requis avec :
 ```sh
