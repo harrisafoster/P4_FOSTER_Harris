@@ -128,6 +128,7 @@ def start_round(current_tournament, round_number):
             assert start_of_round == 'y'
         except AssertionError:
             print('Please press the indicated key to start the round.')
+            continue
         else:
             current_round = Round('tournaments.json').create_round(
                 round_number, current_tournament)
@@ -142,6 +143,7 @@ def end_round(current_tournament, current_round, round_number):
             assert end_current_round == 'y'
         except AssertionError:
             print('Please press the indicated key to end the round.')
+            continue
         else:
             while True:
                 duration = input('How long did the round last? (number of hours only in decimal form, ex. 1.5)')
@@ -172,6 +174,7 @@ def end_match(current_tournament, current_round, current_match):
             assert end_current_match == 'y'
         except AssertionError:
             print('Please press the indicated key to enter the match duration. ')
+            continue
         else:
             while True:
                 duration = input('How long did the match last? (number of hours only in decimal form, ex. 1.5)')
@@ -417,6 +420,7 @@ def global_players_report_options():
             int(choice)
         except ValueError:
             print("Sorry, I didn't understand that.")
+            continue
         if int(choice) not in range(5) or int(choice) == 0:
             print("Sorry, you need to select one of the available options.")
             continue
@@ -454,6 +458,7 @@ def report_menu_global_reports():
             int(choice)
         except ValueError:
             print("Sorry, I didn't understand that.")
+            continue
         if int(choice) not in range(5) or int(choice) == 0:
             print("Sorry, you need to select one of the available options.")
             continue
@@ -479,6 +484,7 @@ def main_report_menu():
             int(choice)
         except ValueError:
             print("Sorry, I didn't understand that.")
+            continue
 
         if int(choice) not in range(4) or int(choice) == 0:
             print("Sorry, you need to select one of the available options.")
@@ -841,7 +847,7 @@ def main_menu():
             int(choice)
         except ValueError:
             print("Sorry, I didn't understand that.")
-
+            continue
         if int(choice) not in range(5) or int(choice) == 0:
             print("Sorry, you need to select one of the available options.")
             continue
