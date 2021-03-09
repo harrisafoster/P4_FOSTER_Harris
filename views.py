@@ -90,6 +90,8 @@ def show_list(message, list_to_show):
         print(message)
     for item in list_to_show:
         print(item)
+    if not list_to_show:
+        print('Empty')
 # prints specified messages
 # prints the specified list item by item
 
