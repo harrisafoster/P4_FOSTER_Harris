@@ -29,7 +29,10 @@ def get_new_player_data():
         try:
             int(ranking)
         except ValueError:
-            print('Please enter only numerical values. ')
+            print('Please enter only whole numerical values. ')
+            continue
+        if int(ranking) <= 0:
+            print('Please enter only positive values.')
             continue
         else:
             ranking = int(ranking)
@@ -58,6 +61,9 @@ def get_new_tournament_data():
         except ValueError:
             print('Please enter only whole number values. ')
             continue
+        if int(nb_players) <= 0:
+            print('Please enter only positive numbers.')
+            continue
         else:
             nb_players = int(nb_players)
             break
@@ -65,7 +71,7 @@ def get_new_tournament_data():
     clear_player_database = input('Would you like to clear the player database? (y/n) ')
     if clear_player_database == 'y':
         Player('players.json').delete_all_players()
-    players_to_add = input('Would you like to add any players to the database? (y/n) ')
+    players_to_add = input('Would you like to add any players to the database and tournament? (y/n) ')
     player_emails = []
     if players_to_add == 'y':
         while True:
@@ -75,13 +81,19 @@ def get_new_tournament_data():
             except ValueError:
                 print('Please enter only whole numbers. ')
                 continue
+            if int(number_of_players_to_add) <= 0:
+                print('Please enter only positive numbers')
+                continue
+            elif int(number_of_players_to_add) > nb_players:
+                print("You may only add as many players as will be participating in the tournament.")
+                continue
             else:
                 number_of_players_to_add = int(number_of_players_to_add)
                 break
         for x in range(int(number_of_players_to_add)):
             player_emails.append(get_new_player_data())
-    print('Please enter the email addresses of the players that are participating in this tournament.')
     while len(player_emails) < nb_players:
+        print('Please enter the email addresses of the remaining players that are participating in this tournament.')
         while True:
             try:
                 email = input("Enter player's email address: ")
@@ -132,6 +144,7 @@ def start_round(current_tournament, round_number):
         else:
             current_round = Round('tournaments.json').create_round(
                 round_number, current_tournament)
+            print('Round started at ' + current_round.start_of_round.strftime("%H:%M:%S"))
             return current_round
 # Asks the user to confirm the start of the round, generates a round object (start_time auto-generated).
 
@@ -151,6 +164,12 @@ def end_round(current_tournament, current_round, round_number):
                     float(duration)
                 except ValueError:
                     print('Please enter a valid number.')
+                    continue
+                if int(duration) <= 0:
+                    print('Please enter only positive numbers.')
+                    continue
+                elif int(duration) > 100:
+                    print('Duration over maximum limit.')
                     continue
                 else:
                     duration = float(duration)
@@ -182,6 +201,12 @@ def end_match(current_tournament, current_round, current_match):
                     float(duration)
                 except ValueError:
                     print('Please enter a valid number.')
+                    continue
+                if int(duration) <= 0:
+                    print('Please enter only positive numbers.')
+                    continue
+                elif int(duration) > 100:
+                    print('Duration over maximum limit.')
                     continue
                 else:
                     duration = float(duration)
@@ -511,6 +536,9 @@ def add_players():
             except ValueError:
                 print('Please enter only whole numbers. ')
                 continue
+            if int(number_of_players_to_add) <= 0:
+                print('Please enter only positive numbers.')
+                continue
             else:
                 number_of_players_to_add = int(number_of_players_to_add)
                 break
@@ -575,7 +603,8 @@ def update_player():
         else:
             new_email = None
         Player('players.json').update_player(email, last_name, first_name, date_of_birth, sex, ranking, new_email)
-        print('Player edited successfully.')
+        if last_name or first_name or date_of_birth or sex or ranking or new_email:
+            print('Player edited successfully.')
     else:
         print("There aren't any players saved in the database.")
     views.when_finished()
@@ -619,6 +648,9 @@ def update_all_rankings():
                 int(new_ranking)
             except ValueError:
                 print('Please enter whole numbers only ')
+                continue
+            if int(new_ranking) <= 0:
+                print('Please enter only positive numbers.')
                 continue
             else:
                 new_ranking = int(new_ranking)
@@ -737,7 +769,7 @@ def delete_tournament():
         else:
             while True:
                 choice = input(
-                    'Which tournament would you like to resume? '
+                    'Which tournament would you like to delete? '
                     '(name and date only, format: Name yyyy-mm-dd)')
                 try:
                     assert choice in Tournament('tournaments.json').get_tournament_names()
