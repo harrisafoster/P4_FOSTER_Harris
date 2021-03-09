@@ -39,7 +39,8 @@ def show_modifiable_fields():
 
 
 def show_main_menu_choices():
-    print('Would you like to '
+    print('Tournament_manager, your all-in-one tournament management tool.')
+    print('\n Would you like to '
           '\n (1) Generate a report'
           '\n (2) Edit/add players'
           '\n (3) Begin/resume/manage a tournament'
